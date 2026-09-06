@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.mechtasnezhevna.creeper_rearranged.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "CreeperRearranged.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
