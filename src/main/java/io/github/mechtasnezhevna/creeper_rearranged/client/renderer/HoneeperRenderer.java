@@ -1,31 +1,21 @@
 package io.github.mechtasnezhevna.creeper_rearranged.client.renderer;
 
-import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
-import net.minecraft.client.renderer.entity.CreeperRenderer;
+import io.github.mechtasnezhevna.creeper_rearranged.client.model.HoneeperGeoModel;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.monster.Creeper;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 /**
- * Renders the honeeper with the vanilla creeper model but its own texture.
- * Swap in a custom model/texture here later without touching the entity logic.
+ * GeckoLib renderer for the honeeper. The model, texture and animation files are resolved by
+ * {@link HoneeperGeoModel}; no vanilla {@code CreeperRenderer} is used anymore.
  */
 @OnlyIn(Dist.CLIENT)
-public class HoneeperRenderer extends CreeperRenderer
+public class HoneeperRenderer extends GeoEntityRenderer<Honeeper>
 {
-    private static final ResourceLocation TEXTURE =
-        ResourceLocation.fromNamespaceAndPath(CreeperRearranged.MODID, "textures/entity/honeeper/honeeper.png");
-
     public HoneeperRenderer(EntityRendererProvider.Context context)
     {
-        super(context);
-    }
-
-    @Override
-    public ResourceLocation getTextureLocation(Creeper entity)
-    {
-        return TEXTURE;
+        super(context, new HoneeperGeoModel());
     }
 }

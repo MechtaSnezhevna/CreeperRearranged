@@ -21,6 +21,14 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.animation.AnimatableManager;
+import software.bernie.geckolib.animation.AnimationController;
+import software.bernie.geckolib.animation.AnimationState;
+import software.bernie.geckolib.animation.PlayState;
+import software.bernie.geckolib.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 /**
  * Honeeper - a creeper variant capped with a bee nest.
@@ -29,10 +37,18 @@ import net.minecraft.world.phys.AABB;
  * its explosion deals half damage, lines the outer rim of the blast crater with honey blocks, and
  * slows affected creatures. Full-honey state is tracked in NBT under {@code FullHoney}.
  */
-public class Honeeper extends VariantCreeper
+public class Honeeper extends VariantCreeper implements GeoEntity
 {
     private static final EntityDataAccessor<Boolean> DATA_FULL_HONEY =
         SynchedEntityData.defineId(Honeeper.class, EntityDataSerializers.BOOLEAN);
+
+    /** GeckoLib animation controller name. */
+    public static final String ANIMATION_CONTROLLER = "honeeper_controller";
+    /** Animation keys from {@code assets/creeper_rearranged/animations/entity/honeeper.animation.json}. */
+    public static final String ANIMATION_IDLE = "animation.honeeper.idle";
+    public static final String ANIMATION_MOVE = "animation.honeeper.move";
+    public static final String ANIMATION_IDLE_FULL_HONEY = "animation.honeeper.idleh";
+    public static final String ANIMATION_MOVE_FULL_HONEY = "animation.honeeper.moveh";
 
     /** How many times bees need to fly over the head to fill the hive. */
     public static final int BEE_VISITS_TO_FULL_HONEY = 5;
@@ -44,9 +60,11 @@ public class Honeeper extends VariantCreeper
     private static final float HONEY_EXPLOSION_DAMAGE_FACTOR = 0.5F;
     private static final String TAG_BEE_VISITS = "BeeVisits";
     private static final String TAG_FULL_HONEY = "FullHoney";
+    private static final int ANIMATION_TRANSITION_TICKS = 5;
 
     private int beeVisits;
     private final Set<UUID> beesOverhead = new HashSet<>();
+    private final AnimatableInstanceCache animatableCache = GeckoLibUtil.createInstanceCache(this);
 
     public Honeeper(EntityType<? extends Honeeper> entityType, Level level)
     {
@@ -61,6 +79,35 @@ public class Honeeper extends VariantCreeper
     public void setFullHoney(boolean fullHoney)
     {
         this.entityData.set(DATA_FULL_HONEY, fullHoney);
+    }
+
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers)
+    {
+        controllers.add(
+            new AnimationController<>(this, ANIMATION_CONTROLLER, ANIMATION_TRANSITION_TICKS, this::animationPredicate)
+        );
+    }
+
+    @Override
+    public AnimatableInstanceCache getAnimatableInstanceCache()
+    {
+        return this.animatableCache;
+    }
+
+    /**
+     * Selects the looping animation based on movement and the full-honey state. Full-honey variants
+     * ({@code idleh}/{@code moveh}) push the honey bone forward, mirroring the honey-covered look.
+     */
+    private PlayState animationPredicate(AnimationState<Honeeper> state)
+    {
+        boolean fullHoney = this.isFullHoney();
+        String animation = state.isMoving()
+            ? (fullHoney ? ANIMATION_MOVE_FULL_HONEY : ANIMATION_MOVE)
+            : (fullHoney ? ANIMATION_IDLE_FULL_HONEY : ANIMATION_IDLE);
+
+        state.getController().setAnimation(RawAnimation.begin().thenLoop(animation));
+        return PlayState.CONTINUE;
     }
 
     @Override

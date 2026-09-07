@@ -16,8 +16,8 @@ public final class ModItems
         "honeeper_spawn_egg",
         () -> new DeferredSpawnEggItem(
             ModEntities.HONEEPER::get,
-            0xF2C14E,
-            0x395A22,
+            0xFFFFFF,
+            0xFFFFFF,
             new Item.Properties()
         )
     );
