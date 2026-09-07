@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_8",
   "refmap": "CreeperRearranged.refmap.json",
   "mixins": [
+    "CreeperExplosionMixin"
   ],
   "client": [
   ],
