@@ -73,6 +73,7 @@ public final class CreeperHooks
         Honeeper honeeper = new Honeeper(ModEntities.HONEEPER.get(), serverLevel);
         honeeper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         EventHooks.finalizeMobSpawn(honeeper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
+        honeeper.setHoneyLevel(Honeeper.randomNaturalHoneyLevel(serverLevel.random));
         serverLevel.tryAddFreshEntityWithPassengers(honeeper);
     }
 
@@ -110,12 +111,12 @@ public final class CreeperHooks
         Level level = honeeper.level();
 
         if (stack.is(Items.SHEARS)) {
-            level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, honeeper.getX(), honeeper.getY(), honeeper.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
             honeeper.spawnAtLocation(new ItemStack(Items.HONEYCOMB, 3));
             stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
         } else if (stack.is(Items.GLASS_BOTTLE)) {
             stack.shrink(1);
-            level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.playSound(null, honeeper.getX(), honeeper.getY(), honeeper.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             if (stack.isEmpty()) {
                 player.setItemInHand(hand, new ItemStack(Items.HONEY_BOTTLE));
             } else if (!player.getInventory().add(new ItemStack(Items.HONEY_BOTTLE))) {

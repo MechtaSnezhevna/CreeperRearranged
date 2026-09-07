@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Bee;
@@ -61,7 +62,7 @@ public class Honeeper extends VariantCreeper implements GeoEntity
     private static final double ATTRACT_RADIUS = 4.0;
     private static final float HONEY_EXPLOSION_DAMAGE_FACTOR = 0.5F;
     /** Per-destroyed-block chance that a full-honey explosion leaves honey in its place. */
-    private static final float HONEY_BLOCK_REPLACE_CHANCE = 0.5F;
+    private static final float HONEY_BLOCK_REPLACE_CHANCE = 0.3F;
     private static final String TAG_HONEY_LEVEL = "HoneyLevel";
     private static final int ANIMATION_TRANSITION_TICKS = 5;
 
@@ -93,6 +94,25 @@ public class Honeeper extends VariantCreeper implements GeoEntity
     public boolean isFullHoney()
     {
         return this.getHoneyLevel() >= MAX_HONEY_LEVEL;
+    }
+
+    /**
+     * Rolls the honey level of a naturally spawned honeeper: 60% level 0, 25% level 1, 10% level 2,
+     * 5% level 3 (full of honey).
+     */
+    public static int randomNaturalHoneyLevel(RandomSource random)
+    {
+        float roll = random.nextFloat();
+        if (roll < 0.60F) {
+            return 0;
+        }
+        if (roll < 0.85F) {
+            return 1;
+        }
+        if (roll < 0.95F) {
+            return 2;
+        }
+        return 3;
     }
 
     /** Records which positions the imminent blast will really destroy (see {@link #destroyedBlockPositions}). */
