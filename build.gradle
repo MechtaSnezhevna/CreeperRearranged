@@ -27,11 +27,6 @@ sourceSets.main.resources {
 }
 
 repositories {
-    // Add here additional repositories if required by some of the dependencies below.
-    maven {
-        // Create, Ponder, Flywheel
-        url = "https://maven.createmod.net"
-    }
     maven {
         // location of a maven mirror for JEI files, as a fallback
         name = "ModMaven"
@@ -49,12 +44,8 @@ repositories {
         url = "https://api.modrinth.com/maven"
     }
     maven {
-        // Create Aeronautics, Simulated and Sable
-        url = "https://maven.ryanhcode.dev/releases"
-    }
-    maven {
-        // CC: Tweaked, a runtime dependency of Create Aeronautics
-        url = "https://maven.squiddev.cc"
+        // GeckoLib (geo entity models / animations)
+        url = "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/"
     }
 }
 
@@ -149,6 +140,9 @@ configurations {
 }
 
 dependencies {
+    // GeckoLib - animation engine for the geo-model based mobs (honeeper and future variants)
+    implementation "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+
     // Example optional mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
     compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
