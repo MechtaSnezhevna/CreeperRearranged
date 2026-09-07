@@ -3,5 +3,8 @@
 
   "entity.creeper_rearranged.honeeper": "苦蜜怕",
 
-  "item.creeper_rearranged.honeeper_spawn_egg": "苦蜜怕刷怪蛋"
+  "item.creeper_rearranged.honeeper_spawn_egg": "苦蜜怕刷怪蛋",
+
+  "creeper_rearranged.jade.honey_level": "蜂蜜等级：%1$s/%2$s",
+  "creeper_rearranged.jade.honey_full": "满蜜"
 }

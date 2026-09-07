@@ -1,9 +1,9 @@
 package io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper;
 
 import io.github.mechtasnezhevna.creeper_rearranged.entity.VariantCreeper;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -19,7 +19,6 @@ import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -33,14 +32,15 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 /**
  * Honeeper - a creeper variant capped with a bee nest.
  *
- * <p>When bees fly over its head {@value #BEE_VISITS_TO_FULL_HONEY} times it becomes full of honey:
- * its explosion deals half damage, lines the outer rim of the blast crater with honey blocks, and
- * slows affected creatures. Full-honey state is tracked in NBT under {@code FullHoney}.
+ * <p>Pollen-carrying bees are attracted to the nest on its head; when one comes close it loses its
+ * pollen and the nest gains one honey level. At {@value #MAX_HONEY_LEVEL} levels the hive is full:
+ * its explosion deals half damage, scatters honey blocks through the blast crater, and slows
+ * affected creatures. Honey level is tracked in NBT under {@code HoneyLevel}.
  */
 public class Honeeper extends VariantCreeper implements GeoEntity
 {
-    private static final EntityDataAccessor<Boolean> DATA_FULL_HONEY =
-        SynchedEntityData.defineId(Honeeper.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Integer> DATA_HONEY_LEVEL =
+        SynchedEntityData.defineId(Honeeper.class, EntityDataSerializers.INT);
 
     /** GeckoLib animation controller name. */
     public static final String ANIMATION_CONTROLLER = "honeeper_controller";
@@ -50,35 +50,55 @@ public class Honeeper extends VariantCreeper implements GeoEntity
     public static final String ANIMATION_IDLE_FULL_HONEY = "animation.honeeper.idleh";
     public static final String ANIMATION_MOVE_FULL_HONEY = "animation.honeeper.moveh";
 
-    /** How many times bees need to fly over the head to fill the hive. */
-    public static final int BEE_VISITS_TO_FULL_HONEY = 5;
+    /** Highest honey level of the worn nest; reaching it means the hive is full. */
+    public static final int MAX_HONEY_LEVEL = 3;
     /** Slowness applied to explosion victims of a full-honey honeeper (Slowness I for 5 seconds). */
     public static final int SLOWNESS_DURATION_TICKS = 5 * 20;
     public static final int SLOWNESS_AMPLIFIER = 0;
 
-    private static final int BEE_CHECK_INTERVAL = 10;
+    private static final int BEE_SCAN_INTERVAL = 10;
+    /** How far (blocks) pollen-carrying bees are lured toward the honeeper's head. */
+    private static final double ATTRACT_RADIUS = 4.0;
     private static final float HONEY_EXPLOSION_DAMAGE_FACTOR = 0.5F;
-    private static final String TAG_BEE_VISITS = "BeeVisits";
-    private static final String TAG_FULL_HONEY = "FullHoney";
+    /** Per-destroyed-block chance that a full-honey explosion leaves honey in its place. */
+    private static final float HONEY_BLOCK_REPLACE_CHANCE = 0.5F;
+    private static final String TAG_HONEY_LEVEL = "HoneyLevel";
     private static final int ANIMATION_TRANSITION_TICKS = 5;
 
-    private int beeVisits;
-    private final Set<UUID> beesOverhead = new HashSet<>();
     private final AnimatableInstanceCache animatableCache = GeckoLibUtil.createInstanceCache(this);
+    /**
+     * Positions holding real (non-air) blocks that this honeeper's blast is about to destroy,
+     * recorded on the server during {@code ExplosionEvent.Detonate} before those blocks are broken.
+     * {@code Explosion.getToBlow()} also lists pure-air cells, so only this set may turn into honey.
+     */
+    private Set<BlockPos> destroyedBlockPositions;
 
     public Honeeper(EntityType<? extends Honeeper> entityType, Level level)
     {
         super(entityType, level);
     }
 
-    public boolean isFullHoney()
+    /** Current honey level of the worn nest, 0..{@value #MAX_HONEY_LEVEL}. */
+    public int getHoneyLevel()
     {
-        return this.entityData.get(DATA_FULL_HONEY);
+        return this.entityData.get(DATA_HONEY_LEVEL);
     }
 
-    public void setFullHoney(boolean fullHoney)
+    /** Sets the honey level, clamped to the valid range; synced data drives the full-honey state. */
+    public void setHoneyLevel(int honeyLevel)
     {
-        this.entityData.set(DATA_FULL_HONEY, fullHoney);
+        this.entityData.set(DATA_HONEY_LEVEL, Math.max(0, Math.min(MAX_HONEY_LEVEL, honeyLevel)));
+    }
+
+    public boolean isFullHoney()
+    {
+        return this.getHoneyLevel() >= MAX_HONEY_LEVEL;
+    }
+
+    /** Records which positions the imminent blast will really destroy (see {@link #destroyedBlockPositions}). */
+    public void recordDestroyedBlocks(Collection<BlockPos> positions)
+    {
+        this.destroyedBlockPositions = new HashSet<>(positions);
     }
 
     @Override
@@ -114,23 +134,21 @@ public class Honeeper extends VariantCreeper implements GeoEntity
     protected void defineSynchedData(SynchedEntityData.Builder builder)
     {
         super.defineSynchedData(builder);
-        builder.define(DATA_FULL_HONEY, false);
+        builder.define(DATA_HONEY_LEVEL, 0);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag tag)
     {
         super.addAdditionalSaveData(tag);
-        tag.putInt(TAG_BEE_VISITS, this.beeVisits);
-        tag.putBoolean(TAG_FULL_HONEY, this.isFullHoney());
+        tag.putInt(TAG_HONEY_LEVEL, this.getHoneyLevel());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag tag)
     {
         super.readAdditionalSaveData(tag);
-        this.beeVisits = tag.getInt(TAG_BEE_VISITS);
-        this.setFullHoney(tag.getBoolean(TAG_FULL_HONEY));
+        this.setHoneyLevel(tag.getInt(TAG_HONEY_LEVEL));
     }
 
     @Override
@@ -140,25 +158,36 @@ public class Honeeper extends VariantCreeper implements GeoEntity
         if (this.level().isClientSide || !this.isAlive() || this.isFullHoney()) {
             return;
         }
-        if (this.tickCount % BEE_CHECK_INTERVAL != 0) {
+        if (this.tickCount % BEE_SCAN_INTERVAL != 0) {
             return;
         }
 
-        Set<UUID> overhead = new HashSet<>();
+        // A pollen-carrying bee that reaches the nest mouth drops its pollen off and fills the nest
+        // one level. At most one delivery per scan so refilling takes several bee visits.
+        Bee nectarBee = null;
         for (Bee bee : this.level().getEntitiesOfClass(Bee.class, this.overheadBox())) {
-            if (bee.isAlive()) {
-                overhead.add(bee.getUUID());
-            }
-        }
-
-        for (UUID uuid : overhead) {
-            if (this.beesOverhead.add(uuid) && ++this.beeVisits >= BEE_VISITS_TO_FULL_HONEY) {
-                this.setFullHoney(true);
-                this.level().playSound(null, this.blockPosition(), SoundEvents.BEEHIVE_DRIP, SoundSource.NEUTRAL, 1.0F, 1.0F);
+            if (bee.isAlive() && bee.hasNectar()) {
+                nectarBee = bee;
                 break;
             }
         }
-        this.beesOverhead.retainAll(overhead);
+        if (nectarBee != null) {
+            nectarBee.dropOffNectar();
+            this.setHoneyLevel(this.getHoneyLevel() + 1);
+            if (this.isFullHoney()) {
+                this.level().playSound(null, this.blockPosition(), SoundEvents.BEEHIVE_DRIP, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                return;
+            }
+        }
+
+        // Attract remaining pollen-carrying bees nearby: lure them toward the nest opening.
+        if (!this.isFullHoney()) {
+            for (Bee bee : this.level().getEntitiesOfClass(Bee.class, this.attractBox())) {
+                if (bee.isAlive() && bee.hasNectar()) {
+                    bee.getNavigation().moveTo(this.getX(), this.getY() + 2.2, this.getZ(), 1.0);
+                }
+            }
+        }
     }
 
     private AABB overheadBox()
@@ -170,6 +199,18 @@ public class Honeeper extends VariantCreeper implements GeoEntity
             this.getX() + 1.0,
             this.getY() + 3.4,
             this.getZ() + 1.0
+        );
+    }
+
+    private AABB attractBox()
+    {
+        return new AABB(
+            this.getX() - ATTRACT_RADIUS,
+            this.getY() - 1.0,
+            this.getZ() - ATTRACT_RADIUS,
+            this.getX() + ATTRACT_RADIUS,
+            this.getY() + 4.0,
+            this.getZ() + ATTRACT_RADIUS
         );
     }
 
@@ -208,26 +249,19 @@ public class Honeeper extends VariantCreeper implements GeoEntity
             return;
         }
 
-        // Replace the outer rim of the crater (blocks that were actually destroyed) with honey
-        // blocks; the inner destroyed blocks stay air, like a normal creeper blast.
+        // Only blocks the blast actually destroyed (recorded at Detonate time from originally
+        // non-air cells, and still air now) independently have a 50% chance to become honey.
+        // Pure-air cells are skipped, and mobGriefing=false/KEEP explosions fail the isAir() check.
+        if (this.destroyedBlockPositions == null) {
+            return;
+        }
         Level level = this.level();
-        Set<BlockPos> destroyed = new HashSet<>(explosion.getToBlow());
-        for (BlockPos pos : explosion.getToBlow()) {
-            BlockState state = level.getBlockState(pos);
-            if (!state.isAir() || !isOuterRim(pos, destroyed)) {
+        for (BlockPos pos : this.destroyedBlockPositions) {
+            if (!level.getBlockState(pos).isAir() || level.random.nextFloat() >= HONEY_BLOCK_REPLACE_CHANCE) {
                 continue;
             }
             level.setBlock(pos, Blocks.HONEY_BLOCK.defaultBlockState(), Block.UPDATE_ALL);
         }
-    }
-
-    private static boolean isOuterRim(BlockPos pos, Set<BlockPos> destroyed)
-    {
-        return !destroyed.contains(pos.above())
-            || !destroyed.contains(pos.below())
-            || !destroyed.contains(pos.north())
-            || !destroyed.contains(pos.south())
-            || !destroyed.contains(pos.east())
-            || !destroyed.contains(pos.west());
+        this.destroyedBlockPositions = null;
     }
 }

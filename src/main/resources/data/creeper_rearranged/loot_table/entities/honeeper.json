@@ -48,7 +48,7 @@
           "condition": "minecraft:entity_properties",
           "entity": "this",
           "predicate": {
-            "nbt": "{FullHoney:1b}"
+            "nbt": "{HoneyLevel:3}"
           }
         },
         {
@@ -71,7 +71,7 @@
           "condition": "minecraft:entity_properties",
           "entity": "this",
           "predicate": {
-            "nbt": "{FullHoney:1b}"
+            "nbt": "{HoneyLevel:3}"
           }
         },
         {

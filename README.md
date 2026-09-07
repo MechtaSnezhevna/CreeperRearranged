@@ -2,6 +2,8 @@
 
 A Minecraft mod that introduces camouflaged variants of creepers.
 
+[中文说明](doc/i18n/README_zh_cn.md)
+
 ## New mobs
 
 ### Honeeper
@@ -11,20 +13,20 @@ A honey-themed creeper variant that wears a bee nest on its head.
 **Spawning and creation**
 - When a creeper spawns naturally inside a `12*8*12` block area around a bee nest, it spawns as a honeeper instead.
 - Right-clicking a vanilla creeper while holding an empty bee nest (no bees stored in it) snaps the nest onto its head and converts it into a honeeper.
+- Use `/summon creeper_rearranged:honeeper ~ ~ ~ {HoneyLevel:%d}` to summon a honeeper with certain(`%d=0/1/2/3`) honey level.
 
 **Behavior**
 - Behaves exactly like a vanilla creeper.
-- Every time a bee flies over its head it fills up a little; after 5 bee visits it reaches the full-honey state.
-- Full-honey explosion: blast damage is halved, hit creatures get Slowness, and the outer rim of the destroyed blocks is replaced with honey blocks while the inner crater stays air.
+- Pollen-carrying bees are attracted to the nest on its head; when such a bee comes close it loses its pollen and the nest's honey level rises by 1. At honey level 3 the honeeper is full of honey.
+- Full-honey explosion: blast damage is halved, hit creatures get Slowness, and every destroyed block has a 50% chance to be replaced with a honey block.
+
+**Harvesting**
+- Shears on a full-honey honeeper drop 3 honeycomb; a glass bottle is filled into a honey bottle. Either harvest empties the nest, so bees have to refill it.
+- Harvesting does not anger bees.
 
 **Drops**
-- Always: a bee nest and 0-2 gunpowder.
+- Always: an (empty) bee nest and 0-2 gunpowder.
 - Full-honey state: 50% chance each for an extra honey block and an extra honeycomb.
 
-**Assets**
-- Rendered with GeckoLib (required mod dependency):
-  - model `assets/creeper_rearranged/geo/entity/honeeper.geo.json`
-  - texture `assets/creeper_rearranged/textures/entity/honeeper.png`
-  - animations `assets/creeper_rearranged/animations/entity/honeeper.animation.json` (`idle`/`move`/`idleh`/`moveh`)
-- The full-honey state switches to the `idleh`/`moveh` animation variants (honey layer pushed forward).
-- Re-export from Blockbench (GeckoLib format) and replace the files at the same paths - no Java change needed unless the animation names change (they are constants in `Honeeper`).
+**Compatibility**
+- With Jade installed, looking at a honeeper shows its honey level (`Honey Level: x/3`, plus "full of honey" at max).

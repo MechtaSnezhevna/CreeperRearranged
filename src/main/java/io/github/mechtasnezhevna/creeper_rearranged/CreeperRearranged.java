@@ -30,6 +30,7 @@ public class CreeperRearranged
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onFinalizeSpawn);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onLivingDamage);
+        NeoForge.EVENT_BUS.addListener(CreeperHooks::onExplosionDetonate);
 
         if (FMLEnvironment.dist.isClient()) {
             modEventBus.addListener(ModClient::registerRenderers);

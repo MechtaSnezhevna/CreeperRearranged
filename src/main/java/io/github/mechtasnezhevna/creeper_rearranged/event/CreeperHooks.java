@@ -2,11 +2,15 @@ package io.github.mechtasnezhevna.creeper_rearranged.event;
 
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -28,6 +32,7 @@ import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.ExplosionEvent;
 
 /**
  * Game-bus handlers shared by creeper variants.
@@ -81,10 +86,52 @@ public final class CreeperHooks
         if (level.isClientSide) {
             return;
         }
-        if (!(event.getTarget() instanceof Creeper creeper) || creeper.getType() != EntityType.CREEPER) {
+
+        if (event.getTarget() instanceof Honeeper honeeper) {
+            harvestFullHoneeper(event, honeeper);
+        } else if (event.getTarget() instanceof Creeper creeper && creeper.getType() == EntityType.CREEPER) {
+            snapNestOntoCreeper(event, creeper);
+        }
+    }
+
+    /**
+     * Harvests a full-honey honeeper like a vanilla full beehive: shears drop honeycomb and a glass
+     * bottle is filled with honey. Either harvest empties the nest, which bees must refill.
+     */
+    private static void harvestFullHoneeper(PlayerInteractEvent.EntityInteract event, Honeeper honeeper)
+    {
+        if (!honeeper.isFullHoney()) {
             return;
         }
 
+        Player player = event.getEntity();
+        InteractionHand hand = event.getHand();
+        ItemStack stack = player.getItemInHand(hand);
+        Level level = honeeper.level();
+
+        if (stack.is(Items.SHEARS)) {
+            level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BEEHIVE_SHEAR, SoundSource.BLOCKS, 1.0F, 1.0F);
+            honeeper.spawnAtLocation(new ItemStack(Items.HONEYCOMB, 3));
+            stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+        } else if (stack.is(Items.GLASS_BOTTLE)) {
+            stack.shrink(1);
+            level.playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.BOTTLE_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+            if (stack.isEmpty()) {
+                player.setItemInHand(hand, new ItemStack(Items.HONEY_BOTTLE));
+            } else if (!player.getInventory().add(new ItemStack(Items.HONEY_BOTTLE))) {
+                player.drop(new ItemStack(Items.HONEY_BOTTLE), false);
+            }
+        } else {
+            return;
+        }
+
+        honeeper.setHoneyLevel(0);
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+    }
+
+    private static void snapNestOntoCreeper(PlayerInteractEvent.EntityInteract event, Creeper creeper)
+    {
         Player player = event.getEntity();
         ItemStack stack = player.getItemInHand(event.getHand());
         if (!stack.is(Items.BEE_NEST) || !stack.getOrDefault(DataComponents.BEES, List.of()).isEmpty()) {
@@ -95,7 +142,7 @@ public final class CreeperHooks
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
         }
-        level.playSound(null, creeper.blockPosition(), SoundType.WOOD.getPlaceSound(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        creeper.level().playSound(null, creeper.blockPosition(), SoundType.WOOD.getPlaceSound(), SoundSource.BLOCKS, 1.0F, 1.0F);
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.SUCCESS);
     }
@@ -117,6 +164,31 @@ public final class CreeperHooks
             new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, Honeeper.SLOWNESS_DURATION_TICKS, Honeeper.SLOWNESS_AMPLIFIER),
             honeeper
         );
+    }
+
+    /**
+     * Before a full-honey honeeper's blast breaks blocks, remembers which positions hold real
+     * (non-air) blocks. {@code Explosion.explode()} also lists pure-air cells in its {@code toBlow},
+     * so this snapshot keeps the honey scatter from filling cells that were already air.
+     */
+    public static void onExplosionDetonate(ExplosionEvent.Detonate event)
+    {
+        Level level = event.getLevel();
+        if (level.isClientSide) {
+            return;
+        }
+        Entity source = event.getExplosion().getIndirectSourceEntity();
+        if (!(source instanceof Honeeper honeeper) || !honeeper.isFullHoney()) {
+            return;
+        }
+
+        Set<BlockPos> destroyedBlocks = new HashSet<>();
+        for (BlockPos pos : event.getAffectedBlocks()) {
+            if (!level.getBlockState(pos).isAir()) {
+                destroyedBlocks.add(pos);
+            }
+        }
+        honeeper.recordDestroyedBlocks(destroyedBlocks);
     }
 
     private static boolean hasBeeNestNearby(ServerLevel level, BlockPos center)

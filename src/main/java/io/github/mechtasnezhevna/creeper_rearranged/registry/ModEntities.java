@@ -27,7 +27,7 @@ public final class ModEntities
     public static final DeferredHolder<EntityType<?>, EntityType<Honeeper>> HONEEPER = ENTITY_TYPES.register(
         "honeeper",
         () -> EntityType.Builder.<Honeeper>of(Honeeper::new, MobCategory.MONSTER)
-            .sized(0.6F, 1.7F)
+            .sized(0.7F, 1.5F)
             .clientTrackingRange(8)
             .build("honeeper")
     );
