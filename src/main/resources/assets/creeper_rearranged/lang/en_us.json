@@ -2,8 +2,10 @@
   "itemGroup.creeper_rearranged": "Creeper Rearranged",
 
   "entity.creeper_rearranged.honeeper": "Honeeper",
+  "entity.creeper_rearranged.endper": "Endper",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "Honeeper Spawn Egg",
+  "item.creeper_rearranged.endper_spawn_egg": "Endper Spawn Egg",
 
   "creeper_rearranged.jade.honey_level": "Honey Level: %1$s/%2$s",
   "creeper_rearranged.jade.honey_full": "Full of honey"

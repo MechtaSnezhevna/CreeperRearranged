@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -30,6 +31,14 @@ public final class ModEntities
             .sized(0.7F, 1.5F)
             .clientTrackingRange(8)
             .build("honeeper")
+    );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Endper>> ENDPER = ENTITY_TYPES.register(
+        "endper",
+        () -> EntityType.Builder.<Endper>of(Endper::new, MobCategory.MONSTER)
+            .sized(0.6F, 2.8F)
+            .clientTrackingRange(8)
+            .build("endper")
     );
 
     private ModEntities()

@@ -31,3 +31,23 @@ A honey-themed creeper variant that wears a bee nest on its head.
 
 **Compatibility**
 - With Jade installed, looking at a honeeper shows its honey level (`Honey Level: x/3`, plus "full of honey" at max).
+
+### Endper
+
+An enderman-tainted creeper variant that carries a stolen ender pearl in its chest.
+
+**Spawning**
+- When a creeper is about to spawn naturally within 8 blocks of a living enderman, an endper spawns instead.
+- In the End, 1/24 of natural enderman spawns are replaced by an endper.
+- Spawn with `/summon creeper_rearranged:endper ~ ~ ~` (add `{EndperHasPearl:0b}` for endper with no pearl) or its spawn egg.
+
+**Behavior**
+- While calm it only wanders. It never hunts players on its own and never detonates on its own.
+- Looking it in the eye provokes it exactly like an enderman: a carved pumpkin hides you; sneaking, invisibility and the amount of armour you wear shrink the provoking distance.
+- Once provoked (stared at or hurt) it screams, opens its snarling mouth and sprints at its target, then detonates 0.5 seconds after closing in. Its blast deals 1.5x a vanilla creeper's damage.
+- It does not teleport when attacked and takes no damage from water or rain, but it still tries to leave water and get out of the rain.
+- Below 3 hearts (of 12) it has a 1/4 chance per setback to teleport away like an enderman and abandon its target - spending its pearl to do so. After that the pearl in its chest is gone and it no longer drops one.
+
+**Drops**
+- Always: 0-2 gunpowder.
+- While still carrying its pearl: 1 ender pearl.

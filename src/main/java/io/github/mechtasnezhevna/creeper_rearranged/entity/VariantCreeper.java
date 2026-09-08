@@ -50,10 +50,10 @@ public abstract class VariantCreeper extends Creeper
             .explode(this, this.getX(), this.getY(), this.getZ(), this.getVariantExplosionRadius(), Level.ExplosionInteraction.MOB);
     }
 
-    /** Blast radius for this variant; doubled while powered, like a vanilla creeper. */
+    /** Blast radius for this variant, matching a vanilla creeper blast. */
     protected float getVariantExplosionRadius()
     {
-        return 3.0F * (this.isPowered() ? 2.0F : 1.0F);
+        return 3.0F;
     }
 
     /** Hook run after the explosion is fully resolved (block destruction already happened). */

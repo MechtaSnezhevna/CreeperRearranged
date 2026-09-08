@@ -18,7 +18,10 @@ public final class ModCreativeTabs
         () -> CreativeModeTab.builder()
             .title(Component.translatable("itemGroup." + CreeperRearranged.MODID))
             .icon(() -> new ItemStack(ModItems.HONEEPER_SPAWN_EGG.get()))
-            .displayItems((parameters, output) -> output.accept(ModItems.HONEEPER_SPAWN_EGG.get()))
+            .displayItems((parameters, output) -> {
+            output.accept(ModItems.HONEEPER_SPAWN_EGG.get());
+            output.accept(ModItems.ENDPER_SPAWN_EGG.get());
+        })
             .build()
     );
 

@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged;
 
 import io.github.mechtasnezhevna.creeper_rearranged.client.ModClient;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.event.CreeperHooks;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModCreativeTabs;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
@@ -40,5 +41,6 @@ public class CreeperRearranged
     private static void registerEntityAttributes(EntityAttributeCreationEvent event)
     {
         event.put(ModEntities.HONEEPER.get(), Creeper.createAttributes().build());
+        event.put(ModEntities.ENDPER.get(), Endper.createAttributes().build());
     }
 }

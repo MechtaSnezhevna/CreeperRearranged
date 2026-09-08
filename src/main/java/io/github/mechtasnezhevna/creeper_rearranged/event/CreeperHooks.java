@@ -1,5 +1,6 @@
 package io.github.mechtasnezhevna.creeper_rearranged.event;
 
+import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import java.util.HashSet;
@@ -22,9 +23,11 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.monster.Creeper;
+import net.minecraft.world.entity.monster.EnderMan;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
@@ -43,15 +46,23 @@ public final class CreeperHooks
     private static final int SPAWN_RANGE_XZ = 6;
     private static final int SPAWN_MIN_Y = -3;
     private static final int SPAWN_MAX_Y = 4;
+    /** Scan radius (blocks) around a natural creeper spawn for a living enderman. */
+    private static final double ENDERMAN_SCAN_RANGE = 8.0;
+    /** Chance that a natural End enderman spawn is replaced by an endper. */
+    private static final float ENDPER_REPLACES_ENDERMAN_CHANCE = 1.0F / 24.0F;
 
     private CreeperHooks()
     {
     }
 
     /**
-     * Replaces a naturally spawning vanilla creeper with a honeeper when a bee nest is nearby.
-     * Only vanilla {@link EntityType#CREEPER} and {@link MobSpawnType#NATURAL} spawns are handled,
-     * so spawners, spawn eggs and other variants are never touched.
+     * Routes natural spawns of vanilla creepers and endermen to creeper variants.
+     *
+     * <p>A vanilla creeper that is about to spawn within 8 blocks of a living enderman becomes an
+     * endper instead; otherwise a bee nest nearby still turns it into a honeeper. Natural enderman
+     * spawns in the End have a 1/24 chance to become an endper. Only vanilla entity types and
+     * {@link MobSpawnType#NATURAL} spawns are handled, so spawners, spawn eggs and other variants
+     * are never touched.
      */
     public static void onFinalizeSpawn(FinalizeSpawnEvent event)
     {
@@ -59,22 +70,53 @@ public final class CreeperHooks
             return;
         }
         Mob mob = event.getEntity();
-        if (!(mob instanceof Creeper creeper) || creeper.getType() != EntityType.CREEPER) {
-            return;
-        }
         if (!(event.getLevel() instanceof ServerLevel serverLevel)) {
             return;
         }
-        if (!hasBeeNestNearby(serverLevel, mob.blockPosition())) {
-            return;
-        }
 
+        if (mob.getType() == EntityType.CREEPER) {
+            if (hasEndermanNearby(serverLevel, mob)) {
+                replaceWithEndper(event, serverLevel, mob);
+                return;
+            }
+            if (hasBeeNestNearby(serverLevel, mob.blockPosition())) {
+                replaceWithHoneeper(event, serverLevel, mob);
+            }
+        } else if (mob.getType() == EntityType.ENDERMAN
+            && serverLevel.dimension() == Level.END
+            && serverLevel.random.nextFloat() < ENDPER_REPLACES_ENDERMAN_CHANCE) {
+            replaceWithEndper(event, serverLevel, mob);
+        }
+    }
+
+    /** Whether a living enderman stands within 8 blocks (Euclidean) of the spawning mob. */
+    private static boolean hasEndermanNearby(ServerLevel level, Mob mob)
+    {
+        Vec3 position = mob.position();
+        return !level.getEntitiesOfClass(
+            EnderMan.class,
+            mob.getBoundingBox().inflate(ENDERMAN_SCAN_RANGE),
+            enderman -> enderman.isAlive() && enderman.distanceToSqr(position) <= ENDERMAN_SCAN_RANGE * ENDERMAN_SCAN_RANGE
+        ).isEmpty();
+    }
+
+    private static void replaceWithHoneeper(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)
+    {
         event.setSpawnCancelled(true);
         Honeeper honeeper = new Honeeper(ModEntities.HONEEPER.get(), serverLevel);
         honeeper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         EventHooks.finalizeMobSpawn(honeeper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
         honeeper.setHoneyLevel(Honeeper.randomNaturalHoneyLevel(serverLevel.random));
         serverLevel.tryAddFreshEntityWithPassengers(honeeper);
+    }
+
+    private static void replaceWithEndper(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)
+    {
+        event.setSpawnCancelled(true);
+        Endper endper = new Endper(ModEntities.ENDPER.get(), serverLevel);
+        endper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
+        EventHooks.finalizeMobSpawn(endper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
+        serverLevel.tryAddFreshEntityWithPassengers(endper);
     }
 
     /**

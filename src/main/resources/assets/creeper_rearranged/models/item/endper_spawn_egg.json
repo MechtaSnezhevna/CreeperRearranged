@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "creeper_rearranged:item/endper_spawn_egg"
+  }
+}

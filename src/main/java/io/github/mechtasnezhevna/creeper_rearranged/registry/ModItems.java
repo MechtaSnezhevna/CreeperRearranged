@@ -22,6 +22,16 @@ public final class ModItems
         )
     );
 
+    public static final DeferredHolder<Item, Item> ENDPER_SPAWN_EGG = ITEMS.register(
+        "endper_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.ENDPER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
     private ModItems()
     {
     }
