@@ -3,9 +3,13 @@
 
   "entity.creeper_rearranged.honeeper": "苦蜜怕",
   "entity.creeper_rearranged.endper": "苦影怕",
+  "entity.creeper_rearranged.crimper": "绯力怕",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "苦蜜怕刷怪蛋",
   "item.creeper_rearranged.endper_spawn_egg": "苦影怕刷怪蛋",
+  "item.creeper_rearranged.crimper_spawn_egg": "绯力怕刷怪蛋",
+
+  "block.creeper_rearranged.warped_shroomlight": "诡异菌光体",
 
   "creeper_rearranged.jade.honey_level": "蜂蜜等级：%1$s/%2$s",
   "creeper_rearranged.jade.honey_full": "满蜜"

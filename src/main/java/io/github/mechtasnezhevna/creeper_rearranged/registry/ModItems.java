@@ -2,6 +2,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -30,6 +31,21 @@ public final class ModItems
             0xFFFFFF,
             new Item.Properties()
         )
+    );
+
+    public static final DeferredHolder<Item, Item> CRIMPER_SPAWN_EGG = ITEMS.register(
+        "crimper_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.CRIMPER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
+    public static final DeferredHolder<Item, Item> WARPED_SHROOMLIGHT = ITEMS.register(
+        "warped_shroomlight",
+        () -> new BlockItem(ModBlocks.WARPED_SHROOMLIGHT.get(), new Item.Properties())
     );
 
     private ModItems()

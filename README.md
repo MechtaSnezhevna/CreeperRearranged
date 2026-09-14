@@ -51,3 +51,27 @@ An enderman-tainted creeper variant that carries a stolen ender pearl in its che
 **Drops**
 - Always: 0-2 gunpowder.
 - While still carrying its pearl: 1 ender pearl.
+
+### Crimper
+
+A creeper variant overgrown with the crimson forest's fungus.
+
+**Spawning**
+- Naturally spawns anywhere in the crimson forest.
+- Spawn with `/summon creeper_rearranged:crimper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- Behaves exactly like a vanilla creeper.
+
+**Drops**
+- Always: 0-2 gunpowder.
+- Additionally 0-3 crimson materials, each one picked at random: crimson stem, weeping vines, crimson roots, nether wart block, shroomlight, crimson fungus or crimson nylium.
+
+## New blocks
+
+### Warped Shroomlight
+
+A warped-forest twin of the shroomlight. It behaves exactly like the vanilla shroomlight - light level 15, hardness 1, mined fastest with a hoe and dropping itself - and only its texture differs.
+
+**How to get it**
+- The shroomlights carried by a huge warped fungus are warped shroomlights instead: both the fungi that generate naturally in the warped forest and the ones grown by using bone meal on a warped fungus.

@@ -3,6 +3,7 @@ package io.github.mechtasnezhevna.creeper_rearranged;
 import io.github.mechtasnezhevna.creeper_rearranged.client.ModClient;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.event.CreeperHooks;
+import io.github.mechtasnezhevna.creeper_rearranged.registry.ModBlocks;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModCreativeTabs;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModItems;
@@ -22,11 +23,13 @@ public class CreeperRearranged
     public static final String MODID = "creeper_rearranged";
     public CreeperRearranged(IEventBus modEventBus, ModContainer modContainer)
     {
+        ModBlocks.BLOCKS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
         ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(CreeperRearranged::registerEntityAttributes);
+        modEventBus.addListener(CreeperHooks::onRegisterSpawnPlacements);
 
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onFinalizeSpawn);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityInteract);
@@ -42,5 +45,6 @@ public class CreeperRearranged
     {
         event.put(ModEntities.HONEEPER.get(), Creeper.createAttributes().build());
         event.put(ModEntities.ENDPER.get(), Endper.createAttributes().build());
+        event.put(ModEntities.CRIMPER.get(), Creeper.createAttributes().build());
     }
 }
