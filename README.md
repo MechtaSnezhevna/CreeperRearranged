@@ -67,6 +67,22 @@ A creeper variant overgrown with the crimson forest's fungus.
 - Always: 0-2 gunpowder.
 - Additionally 0-3 crimson materials, each one picked at random: crimson stem, weeping vines, crimson roots, nether wart block, shroomlight, crimson fungus or crimson nylium.
 
+### Warper
+
+A creeper variant overgrown with the warped forest's fungus.
+
+**Spawning**
+- Naturally spawns anywhere in the warped forest.
+- Spawn with `/summon creeper_rearranged:warper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- Behaves exactly like a vanilla creeper.
+- Endermen are drawn to it: while a living warper is within 16 blocks, an enderman stops wandering randomly and walks to within 5 blocks of it. A warper whose fuse is already burning is ignored - the enderman neither approaches nor flees, it just goes back to wandering.
+
+**Drops**
+- Always: 0-2 gunpowder.
+- Additionally 0-3 warped materials, each one picked at random: warped fungus, warped stem, warped wart block, warped roots, twisting vines, warped nylium or warped shroomlight.
+
 ## New blocks
 
 ### Warped Shroomlight

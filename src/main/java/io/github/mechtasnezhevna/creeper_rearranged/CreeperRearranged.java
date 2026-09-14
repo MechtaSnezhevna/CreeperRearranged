@@ -32,6 +32,7 @@ public class CreeperRearranged
         modEventBus.addListener(CreeperHooks::onRegisterSpawnPlacements);
 
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onFinalizeSpawn);
+        NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityJoinLevel);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onLivingDamage);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onExplosionDetonate);
@@ -46,5 +47,6 @@ public class CreeperRearranged
         event.put(ModEntities.HONEEPER.get(), Creeper.createAttributes().build());
         event.put(ModEntities.ENDPER.get(), Endper.createAttributes().build());
         event.put(ModEntities.CRIMPER.get(), Creeper.createAttributes().build());
+        event.put(ModEntities.WARPER.get(), Creeper.createAttributes().build());
     }
 }

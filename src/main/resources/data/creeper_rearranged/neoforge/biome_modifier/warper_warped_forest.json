@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "minecraft:warped_forest",
+  "spawners": {
+    "type": "creeper_rearranged:warper",
+    "weight": 8,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

@@ -2,10 +2,13 @@ package io.github.mechtasnezhevna.creeper_rearranged.event;
 
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.EndermanApproachWarperGoal;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
@@ -35,6 +38,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
@@ -54,6 +58,14 @@ public final class CreeperHooks
     private static final double ENDERMAN_SCAN_RANGE = 8.0;
     /** Chance that a natural End enderman spawn is replaced by an endper. */
     private static final float ENDPER_REPLACES_ENDERMAN_CHANCE = 1.0F / 24.0F;
+    /** Goal priority of the warper approach; the enderman's vanilla random stroll sits at 7. */
+    private static final int WARPER_APPROACH_GOAL_PRIORITY = 6;
+    /**
+     * Endermen that already received {@link EndermanApproachWarperGoal}, so a mob that re-joins a
+     * level does not collect duplicate goals. Weak keys let unloaded endermen be collected.
+     */
+    private static final Set<EnderMan> ENDERMEN_APPROACHING_WARPERS =
+        Collections.newSetFromMap(new WeakHashMap<>());
 
     private CreeperHooks()
     {
@@ -105,9 +117,9 @@ public final class CreeperHooks
     }
 
     /**
-     * Registers how natural crimper spawns are validated. Like the other Nether monsters (blaze,
-     * magma cube) a crimper spawns on the ground regardless of light level, which is what the
-     * crimson forest needs; the biome modifier adds it to that biome's spawn list.
+     * Registers how natural crimper and warper spawns are validated. Like the other Nether monsters
+     * (blaze, magma cube) they spawn on the ground regardless of light level, which is what their
+     * biomes need; the biome modifiers add them to those biomes' spawn lists.
      */
     public static void onRegisterSpawnPlacements(RegisterSpawnPlacementsEvent event)
     {
@@ -118,6 +130,35 @@ public final class CreeperHooks
             Monster::checkAnyLightMonsterSpawnRules,
             RegisterSpawnPlacementsEvent.Operation.REPLACE
         );
+        event.register(
+            ModEntities.WARPER.get(),
+            SpawnPlacementTypes.ON_GROUND,
+            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+            Monster::checkAnyLightMonsterSpawnRules,
+            RegisterSpawnPlacementsEvent.Operation.REPLACE
+        );
+    }
+
+    /**
+     * Teaches endermen to walk towards nearby warpers.
+     *
+     * <p>Fired for every entity that joins a level - freshly spawned ones as well as those read
+     * back from disk - so endermen in existing worlds get the goal too. The goal outranks the
+     * vanilla random stroll but not the combat goals, so an angry enderman keeps fighting instead
+     * of wandering off to a warper. No mixin is involved.
+     */
+    public static void onEntityJoinLevel(EntityJoinLevelEvent event)
+    {
+        if (event.getLevel().isClientSide()) {
+            return;
+        }
+        if (!(event.getEntity() instanceof EnderMan enderman)) {
+            return;
+        }
+        if (!ENDERMEN_APPROACHING_WARPERS.add(enderman)) {
+            return;
+        }
+        enderman.goalSelector.addGoal(WARPER_APPROACH_GOAL_PRIORITY, new EndermanApproachWarperGoal(enderman));
     }
 
     private static void replaceWithHoneeper(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)

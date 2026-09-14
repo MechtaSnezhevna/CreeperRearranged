@@ -3,6 +3,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.client;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CrimperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.EndperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.HoneeperRenderer;
+import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.WarperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 
@@ -20,5 +21,6 @@ public final class ModClient
         event.registerEntityRenderer(ModEntities.HONEEPER.get(), HoneeperRenderer::new);
         event.registerEntityRenderer(ModEntities.ENDPER.get(), EndperRenderer::new);
         event.registerEntityRenderer(ModEntities.CRIMPER.get(), CrimperRenderer::new);
+        event.registerEntityRenderer(ModEntities.WARPER.get(), WarperRenderer::new);
     }
 }

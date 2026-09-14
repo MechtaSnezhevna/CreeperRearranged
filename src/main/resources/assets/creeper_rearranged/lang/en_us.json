@@ -4,10 +4,12 @@
   "entity.creeper_rearranged.honeeper": "Honeeper",
   "entity.creeper_rearranged.endper": "Endper",
   "entity.creeper_rearranged.crimper": "Crimper",
+  "entity.creeper_rearranged.warper": "Warper",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "Honeeper Spawn Egg",
   "item.creeper_rearranged.endper_spawn_egg": "Endper Spawn Egg",
   "item.creeper_rearranged.crimper_spawn_egg": "Crimper Spawn Egg",
+  "item.creeper_rearranged.warper_spawn_egg": "Warper Spawn Egg",
 
   "block.creeper_rearranged.warped_shroomlight": "Warped Shroomlight",
 

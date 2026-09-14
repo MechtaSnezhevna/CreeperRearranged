@@ -4,6 +4,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -49,6 +50,15 @@ public final class ModEntities
             .eyeHeight(1.2F)
             .clientTrackingRange(8)
             .build("crimper")
+    );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Warper>> WARPER = ENTITY_TYPES.register(
+        "warper",
+        () -> EntityType.Builder.<Warper>of(Warper::new, MobCategory.MONSTER)
+            .sized(0.6F, 1.7F)
+            //.eyeHeight(1.2F)
+            .clientTrackingRange(8)
+            .build("warper")
     );
 
     private ModEntities()

@@ -48,6 +48,16 @@ public final class ModItems
         () -> new BlockItem(ModBlocks.WARPED_SHROOMLIGHT.get(), new Item.Properties())
     );
 
+    public static final DeferredHolder<Item, Item> WARPER_SPAWN_EGG = ITEMS.register(
+        "warper_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.WARPER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
     private ModItems()
     {
     }
