@@ -15,6 +15,10 @@ import software.bernie.geckolib.cache.object.GeoBone;
  * GeckoLib renderer for the endper. Extending {@link VariantCreeperRenderer} provides the vanilla
  * fuse swelling and white flash; the pearl bone is skipped entirely once the endper spent its pearl
  * escaping, which needs no special animation branch (the code hides the bone instead).
+ *
+ * <p>The slimmer silhouette is not handled here at all: it is a separate asset set that
+ * {@link EndperGeoModel} swaps in, so this renderer only has to deal with the pearl, which both
+ * variants carry under the same bone name.
  */
 @OnlyIn(Dist.CLIENT)
 public class EndperRenderer extends VariantCreeperRenderer<Endper>

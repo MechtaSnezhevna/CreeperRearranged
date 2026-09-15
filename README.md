@@ -91,3 +91,11 @@ A warped-forest twin of the shroomlight. It behaves exactly like the vanilla shr
 
 **How to get it**
 - The shroomlights carried by a huge warped fungus are warped shroomlights instead: both the fungi that generate naturally in the warped forest and the ones grown by using bone meal on a warped fungus.
+
+## Client config
+
+Client-side options are stored in `config/creeper_rearranged-client.toml` and can also be edited in game from the mod list's config button.
+
+### Enable Slimmer Models
+
+*Default: enabled.* When enabled, redundant model faces of some creeper variants are culled.

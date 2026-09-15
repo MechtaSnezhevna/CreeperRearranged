@@ -14,5 +14,8 @@
   "block.creeper_rearranged.warped_shroomlight": "诡异菌光体",
 
   "creeper_rearranged.jade.honey_level": "蜂蜜等级：%1$s/%2$s",
-  "creeper_rearranged.jade.honey_full": "满蜜"
+  "creeper_rearranged.jade.honey_full": "满蜜",
+
+  "creeper_rearranged.configuration.slimmer_models": "启用更纤细的模型",
+  "creeper_rearranged.configuration.slimmer_models.tooltip": "当启用，部分苦力怕变种多余的模型面将被剔除。"
 }

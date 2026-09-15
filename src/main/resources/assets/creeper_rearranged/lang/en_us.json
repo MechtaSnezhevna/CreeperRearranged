@@ -14,5 +14,8 @@
   "block.creeper_rearranged.warped_shroomlight": "Warped Shroomlight",
 
   "creeper_rearranged.jade.honey_level": "Honey Level: %1$s/%2$s",
-  "creeper_rearranged.jade.honey_full": "Full of honey"
+  "creeper_rearranged.jade.honey_full": "Full of honey",
+
+  "creeper_rearranged.configuration.slimmer_models": "Enable Slimmer Models",
+  "creeper_rearranged.configuration.slimmer_models.tooltip": "When enabled, redundant model faces of some creeper variants are culled."
 }

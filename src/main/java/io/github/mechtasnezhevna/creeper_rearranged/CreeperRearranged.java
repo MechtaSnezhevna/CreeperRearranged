@@ -39,6 +39,7 @@ public class CreeperRearranged
 
         if (FMLEnvironment.dist.isClient()) {
             modEventBus.addListener(ModClient::registerRenderers);
+            ModClient.registerConfig(modContainer);
         }
     }
 
