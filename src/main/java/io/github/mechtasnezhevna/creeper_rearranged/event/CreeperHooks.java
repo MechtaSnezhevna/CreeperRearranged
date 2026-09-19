@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.event;
 
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.EndermanApproachWarperGoal;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
@@ -135,6 +136,14 @@ public final class CreeperHooks
             SpawnPlacementTypes.ON_GROUND,
             Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
             Monster::checkAnyLightMonsterSpawnRules,
+            RegisterSpawnPlacementsEvent.Operation.REPLACE
+        );
+        // Ocean floor spawns, under water and in the dark exactly like the drowned's.
+        event.register(
+            ModEntities.CREEPOP.get(),
+            SpawnPlacementTypes.IN_WATER,
+            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+            Creepop::checkCreepopSpawnRules,
             RegisterSpawnPlacementsEvent.Operation.REPLACE
         );
     }

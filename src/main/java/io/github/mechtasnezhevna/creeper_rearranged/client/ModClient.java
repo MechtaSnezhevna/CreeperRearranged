@@ -1,11 +1,13 @@
 package io.github.mechtasnezhevna.creeper_rearranged.client;
 
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CrimperRenderer;
+import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CreepopRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.EndperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.HoneeperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.WarperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.config.ClientConfig;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
+import net.minecraft.client.renderer.entity.TntRenderer;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -23,10 +25,12 @@ public final class ModClient
 
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event)
     {
+        event.registerEntityRenderer(ModEntities.UNDERWATER_TNT.get(), TntRenderer::new);
         event.registerEntityRenderer(ModEntities.HONEEPER.get(), HoneeperRenderer::new);
         event.registerEntityRenderer(ModEntities.ENDPER.get(), EndperRenderer::new);
         event.registerEntityRenderer(ModEntities.CRIMPER.get(), CrimperRenderer::new);
         event.registerEntityRenderer(ModEntities.WARPER.get(), WarperRenderer::new);
+        event.registerEntityRenderer(ModEntities.CREEPOP.get(), CreepopRenderer::new);
     }
 
     /**

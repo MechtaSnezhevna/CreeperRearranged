@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
+import io.github.mechtasnezhevna.creeper_rearranged.block.UnderwaterTntBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -17,6 +18,9 @@ import net.neoforged.neoforge.registries.DeferredRegister;
  * world generation or from using bone meal on a warped fungus - are swapped over to it by
  * overriding the vanilla {@code minecraft:warped_fungus} and {@code minecraft:warped_fungus_planted}
  * configured features from the mod's own data pack.
+ *
+ * <p>{@link #UNDERWATER_TNT} copies vanilla TNT the same way, but its primed entity blasts
+ * through water instead of being absorbed by it.
  */
 public final class ModBlocks
 {
@@ -31,6 +35,22 @@ public final class ModBlocks
             .mapColor(MapColor.COLOR_PURPLE)
             .sound(SoundType.SHROOMLIGHT)
             .lightLevel(state -> 15)
+    );
+
+    /**
+     * Vanilla TNT with its own textures: same map colour, instant breaking, sound, lava ignition
+     * and "never a redstone conductor" as {@code Blocks.TNT}, plus a blast that ignores water.
+     */
+    public static final DeferredBlock<UnderwaterTntBlock> UNDERWATER_TNT = BLOCKS.register(
+        "underwater_tnt",
+        () -> new UnderwaterTntBlock(
+            BlockBehaviour.Properties.of()
+                .mapColor(MapColor.FIRE)
+                .instabreak()
+                .sound(SoundType.GRASS)
+                .ignitedByLava()
+                .isRedstoneConductor((state, level, pos) -> false)
+        )
     );
 
     private ModBlocks()

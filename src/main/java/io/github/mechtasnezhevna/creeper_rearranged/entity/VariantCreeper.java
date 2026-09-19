@@ -61,6 +61,16 @@ public abstract class VariantCreeper extends Creeper
     {
     }
 
+    /**
+     * Whether the renderer draws the vanilla white fuse flash while this variant swells. Variants
+     * whose swelling is not a real fuse - the creepop's harmless out-of-water burst - return
+     * {@code false} so they grow without turning white.
+     */
+    public boolean showsFuseWhiteFlash()
+    {
+        return true;
+    }
+
     /** Copy of vanilla {@code Creeper#spawnLingeringCloud()}, which is private. */
     private void spawnVariantLingeringCloud()
     {

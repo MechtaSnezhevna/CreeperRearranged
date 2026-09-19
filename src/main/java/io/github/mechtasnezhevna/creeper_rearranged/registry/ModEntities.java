@@ -1,9 +1,11 @@
 package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -12,7 +14,7 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
 /**
- * Central registry for creeper variant entity types.
+ * Central registry for the mod's entity types: the creeper variants and the underwater TNT's primed entity.
  *
  * <p>To add a new variant:
  * <ol>
@@ -56,9 +58,32 @@ public final class ModEntities
         "warper",
         () -> EntityType.Builder.<Warper>of(Warper::new, MobCategory.MONSTER)
             .sized(0.6F, 1.7F)
-            //.eyeHeight(1.2F)
             .clientTrackingRange(8)
             .build("warper")
+    );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Creepop>> CREEPOP = ENTITY_TYPES.register(
+        "creepop",
+        () -> EntityType.Builder.<Creepop>of(Creepop::new, MobCategory.MONSTER)
+            .sized(0.9F, 1.1F)
+            .eyeHeight(0.55F)
+            .clientTrackingRange(8)
+            .build("creepop")
+    );
+
+    /**
+     * The primed entity of the underwater TNT. Its builder mirrors vanilla's {@code EntityType.TNT}
+     * so the blast has the same reach, hitbox and client tracking.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<UnderwaterPrimedTnt>> UNDERWATER_TNT = ENTITY_TYPES.register(
+        "underwater_tnt",
+        () -> EntityType.Builder.<UnderwaterPrimedTnt>of(UnderwaterPrimedTnt::new, MobCategory.MISC)
+            .fireImmune()
+            .sized(0.98F, 0.98F)
+            .eyeHeight(0.15F)
+            .clientTrackingRange(10)
+            .updateInterval(10)
+            .build("underwater_tnt")
     );
 
     private ModEntities()

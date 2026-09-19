@@ -5,13 +5,18 @@
   "entity.creeper_rearranged.endper": "Endper",
   "entity.creeper_rearranged.crimper": "Crimper",
   "entity.creeper_rearranged.warper": "Warper",
+  "entity.creeper_rearranged.creepop": "Creepop",
+  "entity.creeper_rearranged.underwater_tnt": "Primed Underwater TNT",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "Honeeper Spawn Egg",
   "item.creeper_rearranged.endper_spawn_egg": "Endper Spawn Egg",
   "item.creeper_rearranged.crimper_spawn_egg": "Crimper Spawn Egg",
   "item.creeper_rearranged.warper_spawn_egg": "Warper Spawn Egg",
+  "item.creeper_rearranged.creepop_spawn_egg": "Creepop Spawn Egg",
 
   "block.creeper_rearranged.warped_shroomlight": "Warped Shroomlight",
+
+  "block.creeper_rearranged.underwater_tnt": "Underwater TNT",
 
   "creeper_rearranged.jade.honey_level": "Honey Level: %1$s/%2$s",
   "creeper_rearranged.jade.honey_full": "Full of honey",

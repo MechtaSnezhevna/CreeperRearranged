@@ -83,6 +83,40 @@ A creeper variant overgrown with the warped forest's fungus.
 - Always: 0-2 gunpowder.
 - Additionally 0-3 warped materials, each one picked at random: warped fungus, warped stem, warped wart block, warped roots, twisting vines, warped nylium or warped shroomlight.
 
+### Creepop
+
+A creeper variant that drifts through the ocean inside a bubble of TNT.
+
+**Spawning**
+- Naturally spawns under water in every ocean biome, with the same spawn rules as the drowned.
+- It breathes under water and is not pushed around by currents.
+- Spawn with `/summon creeper_rearranged:creepop ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- Behaves like a vanilla creeper while it is in water: it hunts players, lights its fuse and detonates.
+- Its blast ignores water exactly like the underwater TNT's does: under water it keeps its full radius
+  and damage, and the water blocks themselves are never removed.
+
+**Popping it open**
+- A sword or a trident (the item tag `creeper_rearranged:creepop_poppers`, which a modpack can extend
+  with other mods' items) pricks the bubble open, and so does any arrow or thrown trident: no damage,
+  no blast, it simply drops the underwater TNT it was carrying.
+- Every other melee attack cannot really hurt it and lights its real fuse instead: it swells for
+  1.5 seconds with the white flash and then detonates.
+- Flint and steel follows the same water/land rule as the fuse below: a real fuse in water, the
+  harmless burst on land.
+
+**Out of water**
+- Lure it out of the sea and it can no longer light its real fuse: it swells for 1.5 seconds
+  *without* the white flash and then bursts harmlessly - no blast, no damage, only the underwater
+  TNT drop.
+- Getting back into water before the burst finishes cancels it.
+
+**Drops**
+- Popped open or burst out of water: 1 underwater TNT.
+- Killed any other way - fire, lava, suffocation, a fall, the void, another mob, an explosion:
+  0-2 gunpowder.
+
 ## New blocks
 
 ### Warped Shroomlight
@@ -91,6 +125,22 @@ A warped-forest twin of the shroomlight. It behaves exactly like the vanilla shr
 
 **How to get it**
 - The shroomlights carried by a huge warped fungus are warped shroomlights instead: both the fungi that generate naturally in the warped forest and the ones grown by using bone meal on a warped fungus.
+
+### Underwater TNT
+
+A TNT that keeps its full blast power under water; everything else is vanilla TNT. It has the same
+instant breaking time, sound and 4 second fuse, it can be ignited by redstone, flint and steel, fire
+charges, burning arrows, fire spreading onto it and dispensers, a blast that destroys it primes it
+again with a shortened fuse, and it drops itself when mined.
+
+**How to get it**
+- There is no crafting recipe: it is creative-tab only (or `/setblock` / `/give`).
+
+**Behavior**
+- Its blast treats water as if it was air, so an explosion under water destroys blocks exactly like
+  one in the air. The water blocks themselves are never removed, and a waterlogged block only resists
+  with its own material instead of vanilla's extra 100 from the water.
+- Like vanilla TNT it belongs to `minecraft:enderman_holdable`, so endermen pick it up.
 
 ## Client config
 

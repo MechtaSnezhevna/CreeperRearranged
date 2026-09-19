@@ -78,6 +78,9 @@ public abstract class VariantCreeperRenderer<T extends VariantCreeper & GeoAnima
         @Override
         public void render(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay)
         {
+            if (!animatable.showsFuseWhiteFlash()) {
+                return;
+            }
             float progress = whiteFlashProgress(animatable.getSwelling(partialTick));
             if (progress <= 0.0F) {
                 return;

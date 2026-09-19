@@ -11,6 +11,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraft.world.entity.monster.Creeper;
@@ -28,6 +29,7 @@ public class CreeperRearranged
         ModItems.ITEMS.register(modEventBus);
         ModCreativeTabs.CREATIVE_TABS.register(modEventBus);
 
+        modEventBus.addListener(CreeperRearranged::onCommonSetup);
         modEventBus.addListener(CreeperRearranged::registerEntityAttributes);
         modEventBus.addListener(CreeperHooks::onRegisterSpawnPlacements);
 
@@ -43,11 +45,21 @@ public class CreeperRearranged
         }
     }
 
+    /**
+     * Dispense behaviours have to be registered once the block registry is filled, which is why the
+     * underwater TNT registers its own here instead of straight from the mod constructor.
+     */
+    private static void onCommonSetup(FMLCommonSetupEvent event)
+    {
+        event.enqueueWork(ModItems::registerDispenseBehaviors);
+    }
+
     private static void registerEntityAttributes(EntityAttributeCreationEvent event)
     {
         event.put(ModEntities.HONEEPER.get(), Creeper.createAttributes().build());
         event.put(ModEntities.ENDPER.get(), Endper.createAttributes().build());
         event.put(ModEntities.CRIMPER.get(), Creeper.createAttributes().build());
         event.put(ModEntities.WARPER.get(), Creeper.createAttributes().build());
+        event.put(ModEntities.CREEPOP.get(), Creeper.createAttributes().build());
     }
 }
