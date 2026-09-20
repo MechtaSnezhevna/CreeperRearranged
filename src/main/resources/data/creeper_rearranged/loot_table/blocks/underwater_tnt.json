@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "creeper_rearranged:underwater_tnt",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "unstable": "false"
+              }
+            }
+          ],
+          "name": "creeper_rearranged:underwater_tnt"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "creeper_rearranged:blocks/underwater_tnt"
+}

@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "creeper_rearranged:block/underwater_tnt_bottom",
+    "side": "creeper_rearranged:block/underwater_tnt_side",
+    "top": "creeper_rearranged:block/underwater_tnt_top"
+  }
+}

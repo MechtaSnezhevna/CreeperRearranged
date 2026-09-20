@@ -1,0 +1,6 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "creeper_rearranged:item/creepop_spawn_egg"
+  }
+}
