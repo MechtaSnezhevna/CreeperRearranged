@@ -68,6 +68,16 @@ public final class ModItems
         )
     );
 
+    public static final DeferredHolder<Item, Item> CHERREEPER_SPAWN_EGG = ITEMS.register(
+        "cherreeper_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.CHERREEPER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
     public static final DeferredHolder<Item, Item> CREEPOP_SPAWN_EGG = ITEMS.register(
         "creepop_spawn_egg",
         () -> new DeferredSpawnEggItem(

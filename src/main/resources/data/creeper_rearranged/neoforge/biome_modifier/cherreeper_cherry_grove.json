@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "minecraft:cherry_grove",
+  "spawners": {
+    "type": "creeper_rearranged:cherreeper",
+    "weight": 8,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.cherreeper.Cherreeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
@@ -60,6 +61,15 @@ public final class ModEntities
             .sized(0.6F, 1.7F)
             .clientTrackingRange(8)
             .build("warper")
+    );
+
+    public static final DeferredHolder<EntityType<?>, EntityType<Cherreeper>> CHERREEPER = ENTITY_TYPES.register(
+        "cherreeper",
+        () -> EntityType.Builder.<Cherreeper>of(Cherreeper::new, MobCategory.MONSTER)
+            .sized(0.7F, 1.7F)
+            .eyeHeight(1.3F)
+            .clientTrackingRange(8)
+            .build("cherreeper")
     );
 
     public static final DeferredHolder<EntityType<?>, EntityType<Creepop>> CREEPOP = ENTITY_TYPES.register(

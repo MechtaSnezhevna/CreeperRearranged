@@ -117,6 +117,31 @@ A creeper variant that drifts through the ocean inside a bubble of TNT.
 - Killed any other way - fire, lava, suffocation, a fall, the void, another mob, an explosion:
   0-2 gunpowder.
 
+### Cherreeper
+
+A docile cherry-blossom creeper variant that wears a wide pink hat.
+
+**Spawning**
+- Naturally spawns in the cherry grove biome, day or night.
+- Spawn with `/summon creeper_rearranged:cherreeper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- It is neutral: it never hunts or detonates on its own. Attacking it makes it fight back, and it also turns hostile when you anger bees nearby.
+- While calm it randomly alternates between standing and sitting, each state lasting a few seconds.
+
+**Taming**
+- Right-click with a honey bottle to tame it.
+- A tamed cherreeper never attacks the player, even if you hit it. (Don't hit it, you monster!)
+- Feed a tamed cherreeper honey bottles to restore 6 HP.
+- Right-click a tamed cherreeper to make it sit or stand. A cherreeper you forced to sit stays down and does not move, even when it is hurt.
+
+**Drops**
+- Always: 0-2 gunpowder.
+- Additionally 0-3 cherry materials, each one picked at random: cherry leaves, cherry log or pink petals.
+
+**Cosmetics**
+- Renaming a cherreeper to `color` (case-insensitive) swaps its texture to `cherreeper_color`.
+
 ## New blocks
 
 ### Warped Shroomlight

@@ -26,6 +26,7 @@ public final class ModCreativeTabs
                 output.accept(ModItems.CRIMPER_SPAWN_EGG.get());
                 output.accept(ModItems.WARPER_SPAWN_EGG.get());
                 output.accept(ModItems.CREEPOP_SPAWN_EGG.get());
+                output.accept(ModItems.CHERREEPER_SPAWN_EGG.get());
         })
             .build()
     );

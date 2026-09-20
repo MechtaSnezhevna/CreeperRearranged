@@ -138,6 +138,15 @@ public final class CreeperHooks
             Monster::checkAnyLightMonsterSpawnRules,
             RegisterSpawnPlacementsEvent.Operation.REPLACE
         );
+        // Cherry grove spawns: like the nether monsters, any light level is fine, so the docile
+        // cherreeper can be found while exploring the grove during the day as well as at night.
+        event.register(
+            ModEntities.CHERREEPER.get(),
+            SpawnPlacementTypes.ON_GROUND,
+            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+            Monster::checkAnyLightMonsterSpawnRules,
+            RegisterSpawnPlacementsEvent.Operation.REPLACE
+        );
         // Ocean floor spawns, under water and in the dark exactly like the drowned's.
         event.register(
             ModEntities.CREEPOP.get(),
