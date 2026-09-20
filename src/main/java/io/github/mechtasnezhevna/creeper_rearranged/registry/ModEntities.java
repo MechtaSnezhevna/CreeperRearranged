@@ -7,6 +7,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
@@ -70,6 +71,19 @@ public final class ModEntities
             .eyeHeight(1.3F)
             .clientTrackingRange(8)
             .build("cherreeper")
+    );
+
+    /**
+     * Phanper - a phantom that dives at players and blows itself up. Same hitbox, eye height and
+     * tracking range as the vanilla phantom.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<Phanper>> PHANPER = ENTITY_TYPES.register(
+        "phanper",
+        () -> EntityType.Builder.<Phanper>of(Phanper::new, MobCategory.MONSTER)
+            .sized(0.9F, 0.5F)
+            .eyeHeight(0.175F)
+            .clientTrackingRange(8)
+            .build("phanper")
     );
 
     public static final DeferredHolder<EntityType<?>, EntityType<Creepop>> CREEPOP = ENTITY_TYPES.register(

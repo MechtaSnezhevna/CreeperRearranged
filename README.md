@@ -142,6 +142,24 @@ A docile cherry-blossom creeper variant that wears a wide pink hat.
 **Cosmetics**
 - Renaming a cherreeper to `color` (case-insensitive) swaps its texture to `cherreeper_color`.
 
+### Phanper
+
+A phantom that carries a block of TNT and turns its dive into a suicide bomb.
+
+**Spawning**
+- Each night there is a 1/13 chance that a phanper is summoned high above a random player, like the vanilla phantom spawner.
+- Every naturally spawned phantom has a 1/3 chance to be replaced by a phanper.
+- Spawn with `/summon creeper_rearranged:phanper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- Like phantoms it circles high in the sky, then dives at you. A dive commits to your position at the moment it starts; if it reaches you it explodes like a creeper (blast radius 3, respects the `mobGriefing` rule).
+- Dodge the dive and the phanper is "stuck" for a moment and cannot explode; it then climbs back into the sky and may try again.
+- Unlike phantoms it never burns in daylight, and during the day it does not attack players unless you attack it first; at night it hunts like a phantom.
+- Like phantoms it is scared of cats.
+
+**Drops**
+- Always: 0-2 gunpowder (more with Looting). It never drops phantom membrane.
+
 ## New blocks
 
 ### Warped Shroomlight

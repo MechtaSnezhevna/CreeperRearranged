@@ -2,6 +2,7 @@ package io.github.mechtasnezhevna.creeper_rearranged;
 
 import io.github.mechtasnezhevna.creeper_rearranged.client.ModClient;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.event.CreeperHooks;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModBlocks;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModCreativeTabs;
@@ -38,6 +39,7 @@ public class CreeperRearranged
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onLivingDamage);
         NeoForge.EVENT_BUS.addListener(CreeperHooks::onExplosionDetonate);
+        NeoForge.EVENT_BUS.addListener(CreeperHooks::onLevelTick);
 
         if (FMLEnvironment.dist.isClient()) {
             modEventBus.addListener(ModClient::registerRenderers);
@@ -62,5 +64,6 @@ public class CreeperRearranged
         event.put(ModEntities.WARPER.get(), Creeper.createAttributes().build());
         event.put(ModEntities.CREEPOP.get(), Creeper.createAttributes().build());
         event.put(ModEntities.CHERREEPER.get(), Creeper.createAttributes().build());
+        event.put(ModEntities.PHANPER.get(), Phanper.createAttributes().build());
     }
 }

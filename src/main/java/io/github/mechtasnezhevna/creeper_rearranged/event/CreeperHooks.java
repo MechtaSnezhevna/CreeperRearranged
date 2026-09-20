@@ -3,6 +3,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.event;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.EndermanApproachWarperGoal;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import java.util.Collections;
@@ -13,8 +14,10 @@ import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
@@ -34,10 +37,14 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
@@ -45,6 +52,7 @@ import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 /**
  * Game-bus handlers shared by creeper variants.
@@ -59,6 +67,15 @@ public final class CreeperHooks
     private static final double ENDERMAN_SCAN_RANGE = 8.0;
     /** Chance that a natural End enderman spawn is replaced by an endper. */
     private static final float ENDPER_REPLACES_ENDERMAN_CHANCE = 1.0F / 24.0F;
+    /** Chance that a natural phantom spawn is replaced by a phanper. */
+    private static final float PHANPER_REPLACES_PHANTOM_CHANCE = 1.0F / 3.0F;
+    /** Chance that one phanper spawns above a random player on any given night. */
+    private static final float PHANPER_NIGHT_SPAWN_CHANCE = 1.0F / 13.0F;
+    /** Nightly phanper spawn checks run at most once per this many ticks. */
+    private static final int PHANPER_SPAWN_CHECK_INTERVAL = 100;
+    /** Day index whose nightly 1/13 roll has already been resolved. */
+    private static long lastPhanperNightRoll = Long.MIN_VALUE;
+    private static int phanperSpawnCheckTicks;
     /** Goal priority of the warper approach; the enderman's vanilla random stroll sits at 7. */
     private static final int WARPER_APPROACH_GOAL_PRIORITY = 6;
     /**
@@ -79,7 +96,7 @@ public final class CreeperHooks
      * endper instead; otherwise a bee nest nearby still turns it into a honeeper. Natural enderman
      * spawns in the End have a 1/24 chance to become an endper. Only vanilla entity types and
      * {@link MobSpawnType#NATURAL} spawns are handled, so spawners, spawn eggs and other variants
-     * are never touched.
+     * are never touched. A natural phantom spawn has a 1/3 chance to become a phanper instead.
      */
     public static void onFinalizeSpawn(FinalizeSpawnEvent event)
     {
@@ -103,7 +120,63 @@ public final class CreeperHooks
             && serverLevel.dimension() == Level.END
             && serverLevel.random.nextFloat() < ENDPER_REPLACES_ENDERMAN_CHANCE) {
             replaceWithEndper(event, serverLevel, mob);
+        } else if (mob.getType() == EntityType.PHANTOM
+            && serverLevel.random.nextFloat() < PHANPER_REPLACES_PHANTOM_CHANCE) {
+            replaceWithPhanper(event, serverLevel, mob);
         }
+    }
+
+    /**
+     * The phanper's own nightly spawn: once per night for the overworld there is a 1/13 chance that
+     * one phanper is summoned above a random player, mirroring the way the vanilla
+     * {@code PhantomSpawner} picks a spot high in the sky. The roll happens at most once per night,
+     * and only while the mob spawn rule is on and the difficulty is not peaceful.
+     */
+    public static void onLevelTick(LevelTickEvent.Pre event)
+    {
+        if (!(event.getLevel() instanceof ServerLevel level) || level.dimension() != Level.OVERWORLD) {
+            return;
+        }
+        if (!level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) || level.getDifficulty() == Difficulty.PEACEFUL) {
+            return;
+        }
+        if (--phanperSpawnCheckTicks > 0) {
+            return;
+        }
+        phanperSpawnCheckTicks = PHANPER_SPAWN_CHECK_INTERVAL;
+        if (!level.isNight()) {
+            return;
+        }
+        long night = level.getDayTime() / 24000L;
+        if (night == lastPhanperNightRoll) {
+            return;
+        }
+        lastPhanperNightRoll = night;
+        if (level.random.nextFloat() < PHANPER_NIGHT_SPAWN_CHANCE) {
+            spawnPhanperAbovePlayer(level);
+        }
+    }
+
+    private static void spawnPhanperAbovePlayer(ServerLevel level)
+    {
+        List<ServerPlayer> players = level.players();
+        if (players.isEmpty()) {
+            return;
+        }
+        ServerPlayer player = players.get(level.random.nextInt(players.size()));
+        BlockPos pos = player.blockPosition()
+            .above(20 + level.random.nextInt(15))
+            .east(-10 + level.random.nextInt(21))
+            .south(-10 + level.random.nextInt(21));
+        BlockState blockState = level.getBlockState(pos);
+        FluidState fluidState = level.getFluidState(pos);
+        if (!NaturalSpawner.isValidEmptySpawnBlock(level, pos, blockState, fluidState, ModEntities.PHANPER.get())) {
+            return;
+        }
+        Phanper phanper = new Phanper(ModEntities.PHANPER.get(), level);
+        phanper.moveTo(pos, 0.0F, 0.0F);
+        EventHooks.finalizeMobSpawn(phanper, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
+        level.tryAddFreshEntityWithPassengers(phanper);
     }
 
     /** Whether a living enderman stands within 8 blocks (Euclidean) of the spawning mob. */
@@ -196,6 +269,15 @@ public final class CreeperHooks
         endper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         EventHooks.finalizeMobSpawn(endper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
         serverLevel.tryAddFreshEntityWithPassengers(endper);
+    }
+
+    private static void replaceWithPhanper(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)
+    {
+        event.setSpawnCancelled(true);
+        Phanper phanper = new Phanper(ModEntities.PHANPER.get(), serverLevel);
+        phanper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
+        EventHooks.finalizeMobSpawn(phanper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
+        serverLevel.tryAddFreshEntityWithPassengers(phanper);
     }
 
     /**

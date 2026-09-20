@@ -7,6 +7,7 @@
   "entity.creeper_rearranged.warper": "诡力怕",
   "entity.creeper_rearranged.creepop": "苦力泡",
   "entity.creeper_rearranged.cherreeper": "苦樱怕",
+  "entity.creeper_rearranged.phanper": "苦翼怕",
   "entity.creeper_rearranged.underwater_tnt": "被激活的水下TNT",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "苦蜜怕刷怪蛋",
@@ -15,6 +16,7 @@
   "item.creeper_rearranged.warper_spawn_egg": "诡力怕刷怪蛋",
   "item.creeper_rearranged.creepop_spawn_egg": "苦力泡刷怪蛋",
   "item.creeper_rearranged.cherreeper_spawn_egg": "苦樱怕刷怪蛋",
+  "item.creeper_rearranged.phanper_spawn_egg": "苦翼怕刷怪蛋",
 
   "block.creeper_rearranged.warped_shroomlight": "诡异菌光体",
 
