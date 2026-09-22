@@ -25,9 +25,11 @@
   "creeper_rearranged.jade.honey_level": "蜂蜜等级：%1$s/%2$s",
   "creeper_rearranged.jade.honey_full": "满蜜",
   "creeper_rearranged.jade.owner": "主人：%1$s",
+  "creeper_rearranged.jade.air_time": "%1$s 秒后破裂",
 
   "config.jade.plugin_creeper_rearranged.honey_level": "蜂蜜等级",
   "config.jade.plugin_creeper_rearranged.owner": "主人",
+  "config.jade.plugin_creeper_rearranged.air_time": "破裂倒计时",
 
   "creeper_rearranged.configuration.slimmer_models": "启用更纤细的模型",
   "creeper_rearranged.configuration.slimmer_models.tooltip": "当启用，部分苦力怕变种多余的模型面将被剔除。"

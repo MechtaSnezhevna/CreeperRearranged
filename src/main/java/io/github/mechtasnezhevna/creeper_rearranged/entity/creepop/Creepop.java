@@ -47,6 +47,9 @@ import net.minecraft.world.level.ExplosionDamageCalculator;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidType;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.animatable.instance.AnimatableInstanceCache;
@@ -72,10 +75,12 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * shrugged off (no damage at all) and lights the bubble's real fuse instead, so the blast that
  * answers it comes with the vanilla swelling animation and white flash.
  *
- * <p>Lured out of the water - it walks after players - it cannot light its real fuse; instead it
- * swells for {@value #BURST_DURATION_TICKS} ticks <em>without</em> the white flash and then bursts
- * harmlessly: no blast, no damage, only the underwater TNT drop. Stepping back into water cancels
- * that burst.
+ * <p>Lured out of the water it is harmless: it cannot light its real fuse, loses the ability to
+ * chase anything and drifts through the air like a soap bubble in the wind. After
+ * {@value #AIR_LIFETIME_TICKS} ticks (fifteen seconds) - the last {@value #BURST_DURATION_TICKS} of
+ * which it spends swelling <em>without</em> the white flash - it bursts harmlessly: no blast, no
+ * damage, only the underwater TNT drop. Touching water refills the whole fifteen seconds at once,
+ * while rain or snow falling on the bubble pops it on the spot, even one bobbing on the surface.
  */
 public class Creepop extends VariantCreeper implements GeoEntity
 {
@@ -108,17 +113,33 @@ public class Creepop extends VariantCreeper implements GeoEntity
     );
 
     /**
-     * Ticks the bubble has to stay out of water before it starts to burst. Without this a creepop
-     * bobbing at the surface would flip between swimming and bursting every other tick.
+     * How long a bubble that is out of water survives: fifteen seconds. Touching water refills it
+     * completely; the last {@link #BURST_DURATION_TICKS} ticks are the swelling warning.
      */
-    private static final int DRY_TICKS_BEFORE_BURST = 10;
+    public static final int AIR_LIFETIME_TICKS = 20 * 15;
     private static final int ANIMATION_TRANSITION_TICKS = 5;
+
+    /** A drift heading is kept for 40 to 99 ticks, which is what makes the direction so sticky. */
+    private static final int DRIFT_HEADING_MIN_TICKS = 40;
+    private static final int DRIFT_HEADING_RANDOM_TICKS = 60;
+    /** Only this share of fresh headings also pushes the bubble up or down. */
+    private static final float DRIFT_VERTICAL_CHANCE = 0.15F;
+    /** Top speed of the air drift, in blocks per tick. */
+    private static final double DRIFT_SPEED = 0.045;
+    /** How fast the current velocity turns towards the heading; small means a lot of inertia. */
+    private static final double DRIFT_STEERING = 0.015;
 
     private static final EntityDataAccessor<Boolean> DATA_BURSTING =
         SynchedEntityData.defineId(Creepop.class, EntityDataSerializers.BOOLEAN);
     /** Whether the real fuse lit by a melee hit is burning. */
     private static final EntityDataAccessor<Boolean> DATA_DETONATING =
         SynchedEntityData.defineId(Creepop.class, EntityDataSerializers.BOOLEAN);
+    /**
+     * Ticks of air left before the bubble bursts on its own. Synced so the Jade tooltip can show
+     * the countdown on the client.
+     */
+    private static final EntityDataAccessor<Integer> DATA_AIR_TICKS =
+        SynchedEntityData.defineId(Creepop.class, EntityDataSerializers.INT);
 
     /** Water costs this blast no power and water blocks are left untouched. */
     private static final ExplosionDamageCalculator WATER_DAMAGE_CALCULATOR =
@@ -132,8 +153,11 @@ public class Creepop extends VariantCreeper implements GeoEntity
     /** Attack-lit fuse counter; the same idea as {@link #burst}, but this one ends in a blast. */
     private int fuse;
     private int oldFuse;
-    /** Consecutive ticks spent out of water. */
-    private int dryTicks;
+    /** Current air-drift velocity, and the heading it slowly steers towards. */
+    private Vec3 drift = Vec3.ZERO;
+    private Vec3 driftTarget = Vec3.ZERO;
+    /** Ticks left before a fresh drift heading is rolled. */
+    private int driftTicks;
 
     public Creepop(EntityType<? extends Creepop> entityType, Level level)
     {
@@ -171,6 +195,7 @@ public class Creepop extends VariantCreeper implements GeoEntity
         super.defineSynchedData(builder);
         builder.define(DATA_BURSTING, false);
         builder.define(DATA_DETONATING, false);
+        builder.define(DATA_AIR_TICKS, AIR_LIFETIME_TICKS);
     }
 
     /**
@@ -183,11 +208,32 @@ public class Creepop extends VariantCreeper implements GeoEntity
         return false;
     }
 
+    /**
+     * Out of water the bubble loses interest in everything: it can no longer chase - or even keep -
+     * a target, so not only the target goals but also the revenge its {@code HurtByTargetGoal}
+     * would take are dropped. In water the vanilla creeper behaviour is untouched.
+     */
+    @Override
+    public void setTarget(LivingEntity target)
+    {
+        super.setTarget(this.isInWater() ? target : null);
+    }
+
+    /**
+     * Out of water the bubble is not steered by its AI at all: the drift takes over, so the walk
+     * input is thrown away and the bubble cannot follow a path or a player.
+     */
+    @Override
+    public void travel(Vec3 input)
+    {
+        super.travel(this.isInWater() ? input : Vec3.ZERO);
+    }
+
     @Override
     public void tick()
     {
         if (!this.level().isClientSide) {
-            this.updateBurstState();
+            this.updateAirTimer();
         }
 
         this.oldBurst = this.burst;
@@ -205,33 +251,93 @@ public class Creepop extends VariantCreeper implements GeoEntity
         if (this.level().isClientSide || this.isRemoved()) {
             return;
         }
-        if (this.isDetonating() && this.fuse >= ATTACK_FUSE_TICKS) {
-            this.triggerVariantExplosion();
-        } else if (this.isBursting() && this.burst >= BURST_DURATION_TICKS) {
+        if (this.isExposedToPrecipitation()) {
+            // Rain or snow punctures the bubble at once, even one bobbing on the surface.
             this.burstHarmlessly();
+        } else if (this.isDetonating() && this.fuse >= ATTACK_FUSE_TICKS) {
+            this.triggerVariantExplosion();
+        } else if (this.getAirTicks() <= 0) {
+            this.burstHarmlessly();
+        } else if (!this.isInWater()) {
+            this.applyAirDrift();
         }
     }
 
     /**
-     * Keeps the harmless burst in sync with the water: ten ticks out of water start it, any contact
-     * with water cancels it again - and a real fuse burning cancels it for good.
+     * Runs the fifteen-second air timer. Water refills the bubble completely the moment it is
+     * touched; the last {@link #BURST_DURATION_TICKS} ticks of air make it swell (without the white
+     * flash) as the warning before it bursts. A lit real fuse freezes the timer, because that fuse
+     * ends in a blast rather than in the harmless burst.
      */
-    private void updateBurstState()
+    private void updateAirTimer()
     {
-        if (this.isDeadOrDying() || this.isInWater() || this.isDetonating()) {
-            this.dryTicks = 0;
+        if (this.isDeadOrDying()) {
+            return;
+        }
+        if (this.isInWater()) {
+            if (this.getAirTicks() != AIR_LIFETIME_TICKS) {
+                this.setAirTicks(AIR_LIFETIME_TICKS);
+            }
+            this.drift = Vec3.ZERO;
+            this.driftTicks = 0;
             if (this.isBursting()) {
                 this.setBursting(false);
                 this.burst = 0;
             }
             return;
         }
+        if (this.isDetonating()) {
+            return;
+        }
+        // A target picked up while it was still in water is dropped the moment it leaves it.
+        this.setTarget(null);
 
-        if (++this.dryTicks >= DRY_TICKS_BEFORE_BURST && !this.isBursting()) {
+        this.setAirTicks(Math.max(this.getAirTicks() - 1, 0));
+        if (this.getAirTicks() <= BURST_DURATION_TICKS && !this.isBursting()) {
             this.setBursting(true);
             this.getNavigation().stop();
-            this.setTarget(null);
         }
+    }
+
+    /**
+     * Floats the bubble through the air the way a soap bubble rides the wind: a heading is kept for
+     * a long while and the velocity only creeps towards it, so the direction is hard to change.
+     * Vertical headings are rare and weak. Writing the velocity outright also cancels gravity, which
+     * is what keeps the bubble hovering instead of dropping like a stone.
+     */
+    private void applyAirDrift()
+    {
+        if (--this.driftTicks <= 0) {
+            this.driftTicks = DRIFT_HEADING_MIN_TICKS + this.random.nextInt(DRIFT_HEADING_RANDOM_TICKS);
+            double angle = this.random.nextDouble() * Math.PI * 2.0;
+            double y = this.random.nextFloat() < DRIFT_VERTICAL_CHANCE
+                ? (this.random.nextDouble() - 0.5) * 0.5
+                : 0.0;
+            this.driftTarget = new Vec3(Math.cos(angle), y, Math.sin(angle)).normalize().scale(DRIFT_SPEED);
+        }
+
+        this.drift = this.drift.scale(1.0 - DRIFT_STEERING).add(this.driftTarget.scale(DRIFT_STEERING));
+        this.setDeltaMovement(this.drift);
+    }
+
+    /**
+     * Whether rain or snow is falling straight onto the bubble. Vanilla's {@code Level#isRainingAt}
+     * only accepts {@code RAIN}, so the check is repeated here with {@code SNOW} allowed as well.
+     * Anything under water or under a block fails the sky test, so only a bubble that really is
+     * exposed to the weather pops.
+     */
+    private boolean isExposedToPrecipitation()
+    {
+        Level level = this.level();
+        if (!level.isRaining()) {
+            return false;
+        }
+        BlockPos pos = this.blockPosition();
+        if (!level.canSeeSky(pos)
+            || level.getHeightmapPos(Heightmap.Types.MOTION_BLOCKING, pos).getY() > pos.getY()) {
+            return false;
+        }
+        return level.getBiome(pos).value().getPrecipitationAt(pos) != Biome.Precipitation.NONE;
     }
 
     /**
@@ -387,6 +493,20 @@ public class Creepop extends VariantCreeper implements GeoEntity
         this.entityData.set(DATA_BURSTING, bursting);
     }
 
+    /**
+     * Ticks of air left before the bubble bursts on its own; {@value #AIR_LIFETIME_TICKS} whenever
+     * it is sitting in water.
+     */
+    public int getAirTicks()
+    {
+        return this.entityData.get(DATA_AIR_TICKS);
+    }
+
+    private void setAirTicks(int ticks)
+    {
+        this.entityData.set(DATA_AIR_TICKS, ticks);
+    }
+
     /** Whether the real fuse lit by a melee hit is burning. */
     private boolean isDetonating()
     {
@@ -455,14 +575,17 @@ public class Creepop extends VariantCreeper implements GeoEntity
         return this.animatableCache;
     }
 
-    /** Drifts in place while in water; on land it walks and idles like any other creeper variant. */
+    /**
+     * In water the bubble idles or swims like any other creeper variant; the tumbling
+     * {@code floating} animation is what it does out of water, where it flops and drifts.
+     */
     private PlayState animationPredicate(AnimationState<Creepop> state)
     {
         String animation;
         if (this.isInWater()) {
-            animation = ANIMATION_FLOATING;
-        } else {
             animation = state.isMoving() ? ANIMATION_MOVE : ANIMATION_IDLE;
+        } else {
+            animation = ANIMATION_FLOATING;
         }
         state.getController().setAnimation(RawAnimation.begin().thenLoop(animation));
         return PlayState.CONTINUE;

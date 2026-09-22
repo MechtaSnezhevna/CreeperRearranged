@@ -107,10 +107,15 @@ A creeper variant that drifts through the ocean inside a bubble of TNT.
   harmless burst on land.
 
 **Out of water**
-- Lure it out of the sea and it can no longer light its real fuse: it swells for 1.5 seconds
-  *without* the white flash and then bursts harmlessly - no blast, no damage, only the underwater
-  TNT drop.
-- Getting back into water before the burst finishes cancels it.
+- Out of water it can light neither its real fuse nor a target: it stops chasing and drifts through
+  the air like a soap bubble in the wind - a 3D random drift with a lot of inertia that rarely
+  moves up or down.
+- After 15 seconds of that it bursts harmlessly - no blast, no damage, only the underwater TNT
+  drop. The last 1.5 seconds it swells *without* the white flash as a warning, and Jade shows the
+  seconds it has left.
+- Touching water within those 15 seconds refills the timer on the spot, and back in the water it
+  hunts like every other creeper variant.
+- Rain or snow falling on it pops it at once - that is a harmless burst too.
 
 **Drops**
 - Popped open or burst out of water: 1 underwater TNT.
