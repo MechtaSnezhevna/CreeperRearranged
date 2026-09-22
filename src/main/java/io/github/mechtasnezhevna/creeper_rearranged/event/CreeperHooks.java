@@ -1,7 +1,8 @@
 package io.github.mechtasnezhevna.creeper_rearranged.event;
 
-import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.cherreeper.Cherreeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.EndermanApproachWarperGoal;
@@ -12,11 +13,13 @@ import java.util.List;
 import java.util.Set;
 import java.util.WeakHashMap;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -29,6 +32,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.SpawnPlacements;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.monster.Creeper;
 import net.minecraft.world.entity.monster.EnderMan;
@@ -36,10 +40,13 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
+import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,6 +83,16 @@ public final class CreeperHooks
     /** Day index whose nightly 1/13 roll has already been resolved. */
     private static long lastPhanperNightRoll = Long.MIN_VALUE;
     private static int phanperSpawnCheckTicks;
+    /** How often (ticks) the grove spawner rolls for a cherreeper near a player. */
+    private static final int CHERREEPER_SPAWN_CHECK_INTERVAL = 100;
+    /** Candidate spots tried per grove spawner roll. */
+    private static final int CHERREEPER_SPAWN_ATTEMPTS = 5;
+    /** Annulus around the player (blocks) where the grove spawner looks. */
+    private static final double CHERREEPER_SPAWN_MIN_DISTANCE = 24.0;
+    private static final double CHERREEPER_SPAWN_MAX_DISTANCE = 48.0;
+    /** Wild cherreeper within range of a player at which the grove spawner stops. */
+    private static final int CHERREEPER_CAP_PER_PLAYER = 4;
+    private static int cherreeperSpawnCheckTicks;
     /** Goal priority of the warper approach; the enderman's vanilla random stroll sits at 7. */
     private static final int WARPER_APPROACH_GOAL_PRIORITY = 6;
     /**
@@ -126,12 +143,6 @@ public final class CreeperHooks
         }
     }
 
-    /**
-     * The phanper's own nightly spawn: once per night for the overworld there is a 1/13 chance that
-     * one phanper is summoned above a random player, mirroring the way the vanilla
-     * {@code PhantomSpawner} picks a spot high in the sky. The roll happens at most once per night,
-     * and only while the mob spawn rule is on and the difficulty is not peaceful.
-     */
     public static void onLevelTick(LevelTickEvent.Pre event)
     {
         if (!(event.getLevel() instanceof ServerLevel level) || level.dimension() != Level.OVERWORLD) {
@@ -140,20 +151,24 @@ public final class CreeperHooks
         if (!level.getGameRules().getBoolean(GameRules.RULE_DOMOBSPAWNING) || level.getDifficulty() == Difficulty.PEACEFUL) {
             return;
         }
-        if (--phanperSpawnCheckTicks > 0) {
-            return;
+        // The phanper's own nightly spawn: once per night there is a 1/13 chance that one phanper
+        // is summoned above a random player, mirroring the vanilla {@code PhantomSpawner}.
+        if (--phanperSpawnCheckTicks <= 0) {
+            phanperSpawnCheckTicks = PHANPER_SPAWN_CHECK_INTERVAL;
+            if (level.isNight()) {
+                long night = level.getDayTime() / 24000L;
+                if (night != lastPhanperNightRoll) {
+                    lastPhanperNightRoll = night;
+                    if (level.random.nextFloat() < PHANPER_NIGHT_SPAWN_CHANCE) {
+                        spawnPhanperAbovePlayer(level);
+                    }
+                }
+            }
         }
-        phanperSpawnCheckTicks = PHANPER_SPAWN_CHECK_INTERVAL;
-        if (!level.isNight()) {
-            return;
-        }
-        long night = level.getDayTime() / 24000L;
-        if (night == lastPhanperNightRoll) {
-            return;
-        }
-        lastPhanperNightRoll = night;
-        if (level.random.nextFloat() < PHANPER_NIGHT_SPAWN_CHANCE) {
-            spawnPhanperAbovePlayer(level);
+        // The cherreeper grove spawner runs day and night; see spawnCherreeperInGroves.
+        if (--cherreeperSpawnCheckTicks <= 0) {
+            cherreeperSpawnCheckTicks = CHERREEPER_SPAWN_CHECK_INTERVAL;
+            spawnCherreeperInGroves(level);
         }
     }
 
@@ -177,6 +192,77 @@ public final class CreeperHooks
         phanper.moveTo(pos, 0.0F, 0.0F);
         EventHooks.finalizeMobSpawn(phanper, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
         level.tryAddFreshEntityWithPassengers(phanper);
+    }
+
+    /**
+     * The grove spawner: cherry trees turn the vanilla natural spawn attempts into near misses,
+     * because the candidate Y is drawn uniformly from the bedrock level up to the tree canopy, so
+     * it almost never lands on the actual ground. This instead drops a cherreeper onto a real
+     * ground spot inside a {@code cherry_grove} around a random player, at any time of day, so the
+     * grove population is actually visible.
+     */
+    private static void spawnCherreeperInGroves(ServerLevel level)
+    {
+        List<ServerPlayer> players = level.players();
+        if (players.isEmpty()) {
+            return;
+        }
+        ServerPlayer player = players.get(level.random.nextInt(players.size()));
+        BlockPos center = player.blockPosition();
+        // Keep a calm wild population: once enough untamed cherreeper are near the player, stop.
+        int wild = 0;
+        for (Cherreeper cherreeper : level.getEntitiesOfClass(Cherreeper.class, new AABB(center).inflate(48.0))) {
+            if (cherreeper.isAlive() && !cherreeper.isTamed()) {
+                wild++;
+            }
+        }
+        if (wild >= CHERREEPER_CAP_PER_PLAYER) {
+            return;
+        }
+        for (int attempt = 0; attempt < CHERREEPER_SPAWN_ATTEMPTS; attempt++) {
+            double dx = Mth.nextDouble(level.random, -CHERREEPER_SPAWN_MAX_DISTANCE, CHERREEPER_SPAWN_MAX_DISTANCE);
+            double dz = Mth.nextDouble(level.random, -CHERREEPER_SPAWN_MAX_DISTANCE, CHERREEPER_SPAWN_MAX_DISTANCE);
+            if (dx * dx + dz * dz < CHERREEPER_SPAWN_MIN_DISTANCE * CHERREEPER_SPAWN_MIN_DISTANCE) {
+                continue;
+            }
+            BlockPos pos = getTopNonCollidingPos(
+                level,
+                ModEntities.CHERREEPER.get(),
+                center.getX() + (int) Math.floor(dx),
+                center.getZ() + (int) Math.floor(dz)
+            );
+            double distanceSqr = player.distanceToSqr(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5);
+            if (distanceSqr < 24.0 * 24.0 || distanceSqr > 128.0 * 128.0) {
+                continue;
+            }
+            if (!level.getBiome(pos).is(Biomes.CHERRY_GROVE)
+                || !SpawnPlacements.isSpawnPositionOk(ModEntities.CHERREEPER.get(), level, pos)
+                || !Monster.checkAnyLightMonsterSpawnRules(
+                    ModEntities.CHERREEPER.get(), level, MobSpawnType.NATURAL, pos, level.random
+                )
+                || !level.noCollision(ModEntities.CHERREEPER.get().getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5))) {
+                continue;
+            }
+            Cherreeper cherreeper = new Cherreeper(ModEntities.CHERREEPER.get(), level);
+            cherreeper.moveTo(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0.0F);
+            EventHooks.finalizeMobSpawn(cherreeper, level, level.getCurrentDifficultyAt(pos), MobSpawnType.NATURAL, null);
+            level.tryAddFreshEntityWithPassengers(cherreeper);
+            return;
+        }
+    }
+
+    /**
+     * Copy of the vanilla ground finder used by chunk-generation spawns: walk down from the
+     * entity's heightmap to the first non-empty block and stand the mob one block above it.
+     */
+    private static BlockPos getTopNonCollidingPos(LevelReader level, EntityType<?> entityType, int x, int z)
+    {
+        int y = level.getHeight(SpawnPlacements.getHeightmapType(entityType), x, z);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, y, z);
+        while (level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()) {
+            pos.move(Direction.DOWN);
+        }
+        return pos.above();
     }
 
     /** Whether a living enderman stands within 8 blocks (Euclidean) of the spawning mob. */

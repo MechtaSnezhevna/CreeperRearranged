@@ -3,7 +3,7 @@
   "biomes": "minecraft:cherry_grove",
   "spawners": {
     "type": "creeper_rearranged:cherreeper",
-    "weight": 8,
+    "weight": 20,
     "minCount": 1,
     "maxCount": 1
   }

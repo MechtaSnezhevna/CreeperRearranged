@@ -127,13 +127,14 @@ A docile cherry-blossom creeper variant that wears a wide pink hat.
 
 **Behavior**
 - It is neutral: it never hunts or detonates on its own. Attacking it makes it fight back, and it also turns hostile when you anger bees nearby.
-- While calm it randomly alternates between standing and sitting, each state lasting a few seconds.
+- While calm a wild one randomly alternates between standing and sitting, each state lasting a few seconds; a tamed one keeps the pose its owner last commanded and never switches on its own.
 
 **Taming**
 - Right-click with a honey bottle to tame it.
 - A tamed cherreeper never attacks the player, even if you hit it. (Don't hit it, you monster!)
 - Feed a tamed cherreeper honey bottles to restore 6 HP.
 - Right-click a tamed cherreeper to make it sit or stand. A cherreeper you forced to sit stays down and does not move, even when it is hurt.
+- A standing tamed cherreeper follows its owner like a cat or dog: it walks back when the owner is more than 10 blocks away, and teleports if the gap grows past 12 blocks.
 
 **Drops**
 - Always: 0-2 gunpowder.
