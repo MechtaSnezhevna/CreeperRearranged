@@ -57,12 +57,11 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * <p>The vanilla phantom's flight internals (move control, circling and swoop goals, dive state)
  * are all package-private, so they are copied here and adjusted: a dive commits to the player's
  * position at the moment it starts, and the phanper explodes only if it catches up to the player;
- * a player who dodges away makes the dive miss, after which the phanper is "stuck" (the
- * {@code animation.phanper.stuck} pose) for a moment and then climbs back into the sky for another
- * try. Unlike phantoms it never burns in daylight and during the day it only hunts players who
- * attacked it first. Drops are gunpowder only - no phantom membrane (see the loot table). A
- * naturally spawned phantom has a 1/3 chance to be replaced by a phanper, and each night has a
- * 1/13 chance to summon one above a random player (see {@code CreeperHooks}).
+ * a player who dodges away makes the dive miss, after which the phanper simply climbs back into
+ * the sky for another try. Unlike phantoms it never burns in daylight and during the day it only
+ * hunts players who attacked it first. Drops are gunpowder only - no phantom membrane (see the
+ * loot table). A naturally spawned phantom has a 1/3 chance to be replaced by a phanper, and each
+ * night has a 1/13 chance to summon one above a random player (see {@code CreeperHooks}).
  */
 public class Phanper extends FlyingMob implements Enemy, GeoEntity
 {
@@ -70,7 +69,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
     public static final String ANIMATION_CONTROLLER = "phanper_controller";
     /** Animation keys from {@code assets/creeper_rearranged/animations/entity/phanper.animation.json}. */
     public static final String ANIMATION_IDLE = "animation.phanper.idle";
-    public static final String ANIMATION_STUCK = "animation.phanper.stuck";
 
     /** Copy of the vanilla phantom's flap constants, driving the flap sound and particles. */
     public static final float FLAP_DEGREES_PER_TICK = 7.448451F;
@@ -78,19 +76,13 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
 
     /** Blast radius of the dive explosion, matching a vanilla creeper. */
     private static final float EXPLOSION_RADIUS = 3.0F;
-    /** How many ticks the phanper keeps the stuck pose after a missed dive. */
-    private static final int STUCK_DURATION_TICKS = 40;
     /** A dive that does not connect within this many ticks counts as missed. */
     private static final int MAX_SWEEP_TICKS = 100;
     private static final int ANIMATION_TRANSITION_TICKS = 5;
     private static final String TAG_PROVOKED = "Provoked";
-    private static final String TAG_STUCK_TICKS = "StuckTicks";
 
     private static final EntityDataAccessor<Integer> ID_SIZE =
         SynchedEntityData.defineId(Phanper.class, EntityDataSerializers.INT);
-    /** Synced so the client plays the stuck animation while a missed dive recovers. */
-    private static final EntityDataAccessor<Boolean> ID_STUCK =
-        SynchedEntityData.defineId(Phanper.class, EntityDataSerializers.BOOLEAN);
 
     Vec3 moveTargetPoint = Vec3.ZERO;
     BlockPos anchorPoint = BlockPos.ZERO;
@@ -100,7 +92,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
     @Nullable
     private Vec3 diveTarget;
     private int sweepTicks;
-    private int stuckTicks;
     /** True once a player hurt the phanper, which lets it hunt during the day. */
     private boolean provokedByPlayer;
 
@@ -146,7 +137,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
     {
         super.defineSynchedData(builder);
         builder.define(ID_SIZE, 0);
-        builder.define(ID_STUCK, false);
     }
 
     public void setPhantomSize(int size)
@@ -219,15 +209,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
     }
 
     @Override
-    protected void customServerAiStep()
-    {
-        super.customServerAiStep();
-        if (this.isStuck() && --this.stuckTicks <= 0) {
-            this.setStuck(false);
-        }
-    }
-
-    @Override
     public SpawnGroupData finalizeSpawn(
         ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType, @Nullable SpawnGroupData spawnGroupData
     ) {
@@ -245,7 +226,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
         }
         this.setPhantomSize(tag.getInt("Size"));
         this.provokedByPlayer = tag.getBoolean(TAG_PROVOKED);
-        this.stuckTicks = tag.getInt(TAG_STUCK_TICKS);
     }
 
     @Override
@@ -257,7 +237,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
         tag.putInt("AZ", this.anchorPoint.getZ());
         tag.putInt("Size", this.getPhantomSize());
         tag.putBoolean(TAG_PROVOKED, this.provokedByPlayer);
-        tag.putInt(TAG_STUCK_TICKS, this.stuckTicks);
     }
 
     @Override
@@ -340,18 +319,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
         this.discard();
     }
 
-    /** Whether the phanper is recovering from a missed dive; while stuck it cannot explode. */
-    public boolean isStuck()
-    {
-        return this.entityData.get(ID_STUCK);
-    }
-
-    private void setStuck(boolean stuck)
-    {
-        this.entityData.set(ID_STUCK, stuck);
-        this.stuckTicks = stuck ? STUCK_DURATION_TICKS : 0;
-    }
-
     /** Whether a player attacked the phanper at some point, the only thing that lets it hunt by day. */
     private boolean isProvoked()
     {
@@ -376,8 +343,7 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
 
     private PlayState animationPredicate(AnimationState<Phanper> state)
     {
-        String animation = this.isStuck() ? ANIMATION_STUCK : ANIMATION_IDLE;
-        state.getController().setAnimation(RawAnimation.begin().thenLoop(animation));
+        state.getController().setAnimation(RawAnimation.begin().thenLoop(ANIMATION_IDLE));
         return PlayState.CONTINUE;
     }
 
@@ -561,7 +527,7 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
      * The dive itself. Replaces the vanilla phantom's biting sweep: the phanper locks the dive onto
      * the player's position at take-off, detonates only when it actually reaches the player, and
      * treats anything else - the player dodging away, hitting a wall or getting hurt mid-dive - as a
-     * miss, which leaves it stuck and unable to explode until it climbs back into the sky.
+     * miss that simply flies back into the sky without exploding.
      */
     class PhanperSweepAttackGoal extends PhanperMoveTargetGoal
     {
@@ -612,7 +578,6 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
                 Phanper.this.diveTarget = new Vec3(target.getX(), target.getY(0.5), target.getZ());
             }
             Phanper.this.sweepTicks = 0;
-            Phanper.this.setStuck(false);
             Phanper.this.playSound(SoundEvents.TNT_PRIMED, 1.0F, 1.0F);
         }
 
@@ -639,9 +604,8 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
                 || Phanper.this.hurtTime > 0
                 || Phanper.this.moveTargetPoint.distanceToSqr(Phanper.this.getX(), Phanper.this.getY(), Phanper.this.getZ()) < 4.0
                 || ++Phanper.this.sweepTicks > MAX_SWEEP_TICKS) {
-                // Missed: the player dodged, so no explosion; recover stuck, then climb back up.
+                // Missed: the player dodged, so no explosion; circle back up into the sky.
                 Phanper.this.attackPhase = AttackPhase.CIRCLE;
-                Phanper.this.setStuck(true);
             }
         }
     }
@@ -718,7 +682,7 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
                 float f = Phanper.this.getYRot();
                 float f1 = (float) Mth.atan2(d2, d0);
                 float f2 = Mth.wrapDegrees(Phanper.this.getYRot() + 90.0F);
-                float f3 = Mth.wrapDegrees(f1 * (float) (Math.PI / 180.0));
+                float f3 = Mth.wrapDegrees(f1 * (180.0F / (float) Math.PI));
                 Phanper.this.setYRot(Mth.approachDegrees(f2, f3, 4.0F) - 90.0F);
                 Phanper.this.yBodyRot = Phanper.this.getYRot();
                 if (Mth.degreesDifferenceAbs(f, Phanper.this.getYRot()) < 3.0F) {
