@@ -8,7 +8,17 @@
   "entity.creeper_rearranged.creepop": "苦力泡",
   "entity.creeper_rearranged.cherreeper": "苦樱怕",
   "entity.creeper_rearranged.phanper": "苦翼怕",
+  "entity.creeper_rearranged.creepaler": "苦力白",
   "entity.creeper_rearranged.underwater_tnt": "被激活的水下TNT",
+
+  "subtitles.creeper_rearranged.mob.creepaler.idle": "苦力白：吱嘎作响",
+  "subtitles.creeper_rearranged.mob.creepaler.activate": "苦力白：苏醒",
+  "subtitles.creeper_rearranged.mob.creepaler.deactivate": "苦力白：沉睡",
+  "subtitles.creeper_rearranged.mob.creepaler.freeze": "苦力白：冻结",
+  "subtitles.creeper_rearranged.mob.creepaler.unfreeze": "苦力白：解冻",
+  "subtitles.creeper_rearranged.mob.creepaler.death": "苦力白：死亡",
+  "subtitles.creeper_rearranged.mob.creepaler.step": "苦力白：脚步声",
+  "subtitles.creeper_rearranged.mob.creepaler.spawn": "苦力白：生成",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "苦蜜怕刷怪蛋",
   "item.creeper_rearranged.endper_spawn_egg": "苦影怕刷怪蛋",
@@ -17,6 +27,7 @@
   "item.creeper_rearranged.creepop_spawn_egg": "苦力泡刷怪蛋",
   "item.creeper_rearranged.cherreeper_spawn_egg": "苦樱怕刷怪蛋",
   "item.creeper_rearranged.phanper_spawn_egg": "苦翼怕刷怪蛋",
+  "item.creeper_rearranged.creepaler_spawn_egg": "苦力白刷怪蛋",
 
   "block.creeper_rearranged.warped_shroomlight": "诡异菌光体",
 

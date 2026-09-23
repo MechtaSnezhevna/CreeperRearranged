@@ -166,6 +166,24 @@ A phantom that carries a block of TNT and turns its dive into a suicide bomb.
 **Drops**
 - Always: 0-2 gunpowder (more with Looting). It never drops phantom membrane.
 
+### Creepaler
+
+A pale creeper variant from the pale garden that freezes while it is being watched.
+
+**Spawning**
+- If a version has no pale garden, half of the naturally spawned creepers in the dark forest will be replaced by a creepaler instead.
+- Spawn with `/summon creeper_rearranged:creepaler ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- A creepaler sleeps by default, and only wakes when a player watches it from within 12 blocks.
+- While a player's gaze is on it, it freezes completely: it cannot move, turn, melee attack, mount anything or be pushed, and it stops all animation. It never disappears in daylight like the creaking.
+- Once nobody is watching it and it has no target, an active creepaler falls back asleep; otherwise it sprints at players at about 8 m/s and detonates like every other creeper variant.
+- Like the creaking, a player counts as watching when they are in survival or adventure, are not on the creepaler's team, the line between them is free of solid blocks within 32 blocks (glass, stained glass, tinted glass, iron bars and powder snow do not block) and the angle between their gaze and that line is under 60 degrees. A carved pumpkin hides your gaze; a sleeping creepaler only wakes when you are within 12 blocks.
+
+**Drops**
+- Always: 0-2 gunpowder (more with Looting).
+- Killed during the day (no thunderstorm): 1 gray dye; at night or during a thunderstorm: 1 orange dye.
+
 ## New blocks
 
 ### Warped Shroomlight

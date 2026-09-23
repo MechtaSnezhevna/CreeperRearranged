@@ -1,0 +1,97 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.kulibai",
+				"texture_width": 64,
+				"texture_height": 64,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 3.5,
+				"visible_bounds_offset": [0, 1.25, 0]
+			},
+			"bones": [
+				{
+					"name": "creepaler",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "body",
+					"parent": "creepaler",
+					"pivot": [0, 24, 0],
+					"cubes": [
+						{"origin": [0, 8, -3], "size": [7, 16, 6], "uv": [0, 17]},
+						{"origin": [-7, 17, -3], "size": [7, 7, 6], "uv": [26, 17]}
+					]
+				},
+				{
+					"name": "head",
+					"parent": "body",
+					"pivot": [-3.5, 24, 0],
+					"cubes": [
+						{"origin": [-7.5, 24, -3.5], "size": [8, 10, 7], "uv": [0, 0]},
+						{"origin": [-7.5, 34, -3.5], "size": [8, 3, 7], "uv": [30, 0]}
+					]
+				},
+				{
+					"name": "grass",
+					"parent": "head",
+					"pivot": [-3.5, 29, 0],
+					"cubes": [
+						{"origin": [0.5, 24, 0], "size": [3, 8, 0], "uv": [32, 30]},
+						{"origin": [-10.5, 25, 0], "size": [3, 8, 0], "uv": [26, 30]}
+					]
+				},
+				{
+					"name": "flower",
+					"parent": "body",
+					"pivot": [5, 24, 1],
+					"cubes": [
+						{"origin": [1.5, 24, 1], "size": [7, 8, 0], "pivot": [5, 24, 1], "rotation": [0, -45, 0], "uv": [38, 30]},
+						{"origin": [1.5, 24, 1], "size": [7, 8, 0], "pivot": [5, 24, 1], "rotation": [0, 45, 0], "uv": [38, 30]}
+					]
+				},
+				{
+					"name": "leg0",
+					"parent": "creepaler",
+					"pivot": [-1.5, 10, -2.5],
+					"cubes": [
+						{"origin": [-3, 0, -4], "size": [3, 10, 3], "uv": [0, 39]},
+						{"origin": [-5, 0.25, -6], "size": [7, 0, 7], "uv": [5, 45]},
+						{"origin": [-3, 10, -4], "size": [3, 2, 3], "uv": [12, 39]}
+					]
+				},
+				{
+					"name": "leg1",
+					"parent": "creepaler",
+					"pivot": [6.5, 10, -2.5],
+					"cubes": [
+						{"origin": [5, 0, -4], "size": [3, 10, 3], "uv": [0, 39], "mirror": true},
+						{"origin": [3, 0.25, -6], "size": [7, 0, 7], "uv": [5, 45], "mirror": true},
+						{"origin": [5, 10, -4], "size": [3, 2, 3], "uv": [12, 39], "mirror": true}
+					]
+				},
+				{
+					"name": "leg2",
+					"parent": "creepaler",
+					"pivot": [-1.5, 10, 2.5],
+					"cubes": [
+						{"origin": [-3, 0, 1], "size": [3, 10, 3], "uv": [0, 39], "mirror": true},
+						{"origin": [-5, 0.25, -1], "size": [7, 0, 7], "uv": [5, 45], "mirror": true},
+						{"origin": [-3, 10, 1], "size": [3, 2, 3], "uv": [12, 39], "mirror": true}
+					]
+				},
+				{
+					"name": "leg3",
+					"parent": "creepaler",
+					"pivot": [6.5, 10, 2.5],
+					"cubes": [
+						{"origin": [5, 0, 1], "size": [3, 10, 3], "uv": [0, 39]},
+						{"origin": [3, 0.25, -1], "size": [7, 0, 7], "uv": [5, 45]},
+						{"origin": [5, 10, 1], "size": [3, 2, 3], "uv": [12, 39]}
+					]
+				}
+			]
+		}
+	]
+}

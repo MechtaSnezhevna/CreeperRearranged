@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.event;
 
 import io.github.mechtasnezhevna.creeper_rearranged.entity.cherreeper.Cherreeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.creepaler.Creepaler;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
@@ -76,6 +77,8 @@ public final class CreeperHooks
     private static final float ENDPER_REPLACES_ENDERMAN_CHANCE = 1.0F / 24.0F;
     /** Chance that a natural phantom spawn is replaced by a phanper. */
     private static final float PHANPER_REPLACES_PHANTOM_CHANCE = 1.0F / 3.0F;
+    /** Chance that a natural creeper spawn in a dark forest is replaced by a creepaler. */
+    private static final float CREEPALER_REPLACES_CREEPER_CHANCE = 0.5F;
     /** Chance that one phanper spawns above a random player on any given night. */
     private static final float PHANPER_NIGHT_SPAWN_CHANCE = 1.0F / 13.0F;
     /** Nightly phanper spawn checks run at most once per this many ticks. */
@@ -114,6 +117,8 @@ public final class CreeperHooks
      * spawns in the End have a 1/24 chance to become an endper. Only vanilla entity types and
      * {@link MobSpawnType#NATURAL} spawns are handled, so spawners, spawn eggs and other variants
      * are never touched. A natural phantom spawn has a 1/3 chance to become a phanper instead.
+     * In a dark forest - standing in for the pale garden, which does not exist in 1.21.1 - half of
+     * the natural creeper spawns become a creepaler instead.
      */
     public static void onFinalizeSpawn(FinalizeSpawnEvent event)
     {
@@ -126,6 +131,11 @@ public final class CreeperHooks
         }
 
         if (mob.getType() == EntityType.CREEPER) {
+            if (serverLevel.getBiome(mob.blockPosition()).is(Biomes.DARK_FOREST)
+                && serverLevel.random.nextFloat() < CREEPALER_REPLACES_CREEPER_CHANCE) {
+                replaceWithCreepaler(event, serverLevel, mob);
+                return;
+            }
             if (hasEndermanNearby(serverLevel, mob)) {
                 replaceWithEndper(event, serverLevel, mob);
                 return;
@@ -364,6 +374,15 @@ public final class CreeperHooks
         phanper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         EventHooks.finalizeMobSpawn(phanper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
         serverLevel.tryAddFreshEntityWithPassengers(phanper);
+    }
+
+    private static void replaceWithCreepaler(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)
+    {
+        event.setSpawnCancelled(true);
+        Creepaler creepaler = new Creepaler(ModEntities.CREEPALER.get(), serverLevel);
+        creepaler.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
+        EventHooks.finalizeMobSpawn(creepaler, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
+        serverLevel.tryAddFreshEntityWithPassengers(creepaler);
     }
 
     /**

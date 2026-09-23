@@ -2,6 +2,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.cherreeper.Cherreeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.creepaler.Creepaler;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
@@ -93,6 +94,19 @@ public final class ModEntities
             .eyeHeight(0.55F)
             .clientTrackingRange(8)
             .build("creepop")
+    );
+
+    /**
+     * Creepaler - the pale garden creeper. Same hitbox, eye height and tracking range as the
+     * vanilla creeper. It never needs its own spawn placement or biome modifier: it replaces
+     * vanilla creeper spawns in the dark forest through {@code CreeperHooks#onFinalizeSpawn}.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<Creepaler>> CREEPALER = ENTITY_TYPES.register(
+        "creepaler",
+        () -> EntityType.Builder.<Creepaler>of(Creepaler::new, MobCategory.MONSTER)
+            .sized(0.6F, 1.7F)
+            .clientTrackingRange(8)
+            .build("creepaler")
     );
 
     /**

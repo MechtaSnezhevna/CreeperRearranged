@@ -8,7 +8,17 @@
   "entity.creeper_rearranged.creepop": "Creepop",
   "entity.creeper_rearranged.cherreeper": "Cherreeper",
   "entity.creeper_rearranged.phanper": "Phanper",
+  "entity.creeper_rearranged.creepaler": "Creepaler",
   "entity.creeper_rearranged.underwater_tnt": "Primed Underwater TNT",
+
+  "subtitles.creeper_rearranged.mob.creepaler.idle": "Creepaler creaks",
+  "subtitles.creeper_rearranged.mob.creepaler.activate": "Creepaler awakens",
+  "subtitles.creeper_rearranged.mob.creepaler.deactivate": "Creepaler falls asleep",
+  "subtitles.creeper_rearranged.mob.creepaler.freeze": "Creepaler freezes",
+  "subtitles.creeper_rearranged.mob.creepaler.unfreeze": "Creepaler unfreezes",
+  "subtitles.creeper_rearranged.mob.creepaler.death": "Creepaler dies",
+  "subtitles.creeper_rearranged.mob.creepaler.step": "Creepaler footsteps",
+  "subtitles.creeper_rearranged.mob.creepaler.spawn": "Creepaler spawns",
 
   "item.creeper_rearranged.honeeper_spawn_egg": "Honeeper Spawn Egg",
   "item.creeper_rearranged.endper_spawn_egg": "Endper Spawn Egg",
@@ -17,6 +27,7 @@
   "item.creeper_rearranged.creepop_spawn_egg": "Creepop Spawn Egg",
   "item.creeper_rearranged.cherreeper_spawn_egg": "Cherreeper Spawn Egg",
   "item.creeper_rearranged.phanper_spawn_egg": "Phanper Spawn Egg",
+  "item.creeper_rearranged.creepaler_spawn_egg": "Creepaler Spawn Egg",
 
   "block.creeper_rearranged.warped_shroomlight": "Warped Shroomlight",
 

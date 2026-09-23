@@ -1,0 +1,64 @@
+{
+  "mob.creepaler.idle": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.idle",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_idle1",
+      "creeper_rearranged:mob/creepaler/creaking_idle2",
+      "creeper_rearranged:mob/creepaler/creaking_idle3",
+      "creeper_rearranged:mob/creepaler/creaking_idle4",
+      "creeper_rearranged:mob/creepaler/creaking_idle5",
+      "creeper_rearranged:mob/creepaler/creaking_idle6"
+    ]
+  },
+  "mob.creepaler.activate": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.activate",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_activate"
+    ]
+  },
+  "mob.creepaler.deactivate": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.deactivate",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_deactivate"
+    ]
+  },
+  "mob.creepaler.freeze": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.freeze",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_freeze1",
+      "creeper_rearranged:mob/creepaler/creaking_freeze2",
+      "creeper_rearranged:mob/creepaler/creaking_freeze3",
+      "creeper_rearranged:mob/creepaler/creaking_freeze4"
+    ]
+  },
+  "mob.creepaler.unfreeze": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.unfreeze",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_unfreeze1",
+      "creeper_rearranged:mob/creepaler/creaking_unfreeze2",
+      "creeper_rearranged:mob/creepaler/creaking_unfreeze3"
+    ]
+  },
+  "mob.creepaler.death": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.death",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_death"
+    ]
+  },
+  "mob.creepaler.step": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.step",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_step1",
+      "creeper_rearranged:mob/creepaler/creaking_step2",
+      "creeper_rearranged:mob/creepaler/creaking_step3",
+      "creeper_rearranged:mob/creepaler/creaking_step4",
+      "creeper_rearranged:mob/creepaler/creaking_step5"
+    ]
+  },
+  "mob.creepaler.spawn": {
+    "subtitle": "subtitles.creeper_rearranged.mob.creepaler.spawn",
+    "sounds": [
+      "creeper_rearranged:mob/creepaler/creaking_spawn"
+    ]
+  }
+}
