@@ -103,11 +103,9 @@ A creeper variant that drifts through the ocean inside a bubble of TNT.
   no blast, it simply drops the underwater TNT it was carrying.
 - Every other melee attack cannot really hurt it and lights its real fuse instead: it swells for
   1.5 seconds with the white flash and then detonates.
-- Flint and steel follows the same water/land rule as the fuse below: a real fuse in water, the
-  harmless burst on land.
 
 **Out of water**
-- Out of water it can light neither its real fuse nor a target: it stops chasing and drifts through
+- Out of water it can prime neither its own fuse nor a target: it stops chasing and drifts through
   the air like a soap bubble in the wind - a 3D random drift with a lot of inertia that rarely
   moves up or down.
 - After 15 seconds of that it bursts harmlessly - no blast, no damage, only the underwater TNT

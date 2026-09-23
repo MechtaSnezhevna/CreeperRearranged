@@ -75,8 +75,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * shrugged off (no damage at all) and lights the bubble's real fuse instead, so the blast that
  * answers it comes with the vanilla swelling animation and white flash.
  *
- * <p>Lured out of the water it is harmless: it cannot light its real fuse, loses the ability to
- * chase anything and drifts through the air like a soap bubble in the wind. After
+ * <p>Lured out of the water it is harmless: it cannot prime its own fuse, loses the ability to
+ * chase anything and drifts through the air like a soap bubble in the wind, although a wrong-tool
+ * hit or a flint and steel click (any {@code #minecraft:creeper_igniters} item) still lights its
+ * real fuse from outside. After
  * {@value #AIR_LIFETIME_TICKS} ticks (fifteen seconds) - the last {@value #BURST_DURATION_TICKS} of
  * which it spends swelling <em>without</em> the white flash - it bursts harmlessly: no blast, no
  * damage, only the underwater TNT drop. Touching water refills the whole fifteen seconds at once,
@@ -354,6 +356,22 @@ public class Creepop extends VariantCreeper implements GeoEntity
         super.setSwellDir(direction);
     }
 
+    /**
+     * Flint and steel (or a fire charge) lights the fuse out of the water as well. Vanilla's
+     * {@code Creeper#ignite()} swells the vanilla way, which {@link #setSwellDir} swallows while
+     * the bubble is airborne, so the click is routed onto the same real fuse as a wrong-tool hit
+     * instead.
+     */
+    @Override
+    public void ignite()
+    {
+        if (!this.isInWater()) {
+            this.igniteFuse();
+            return;
+        }
+        super.ignite();
+    }
+
     /** Both the harmless burst and the attack-lit fuse drive the swelling animation. */
     @Override
     public float getSwelling(float partialTick)
@@ -437,9 +455,10 @@ public class Creepop extends VariantCreeper implements GeoEntity
     }
 
     /**
-     * Lights the real fuse after a wrong-tool hit. The bubble neither takes damage nor blows up on
-     * the spot: it swells, flashes white like a vanilla creeper and detonates once the fuse is out.
-     * The harmless out-of-water burst is called off, and hitting it again does not restart the fuse.
+     * Lights the real fuse after a wrong-tool hit or a flint and steel click. The bubble neither
+     * takes damage nor blows up on the spot: it swells, flashes white like a vanilla creeper and
+     * detonates once the fuse is out. The harmless out-of-water burst is called off, and hitting it
+     * again does not restart the fuse.
      */
     private void igniteFuse()
     {
@@ -452,6 +471,9 @@ public class Creepop extends VariantCreeper implements GeoEntity
         this.oldFuse = 0;
         this.setDetonating(true);
         this.getNavigation().stop();
+        if (!this.level().isClientSide) {
+            this.playSound(SoundEvents.CREEPER_PRIMED, 1.0F, 0.5F);
+        }
     }
 
     /** The harmless end of a burst: no blast and no damage, only the drop. */
