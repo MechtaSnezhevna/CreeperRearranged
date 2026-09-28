@@ -56,9 +56,10 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  *
  * <p>The vanilla phantom's flight internals (move control, circling and swoop goals, dive state)
  * are all package-private, so they are copied here and adjusted: a dive commits to the player's
- * position at the moment it starts, and the phanper explodes only if it catches up to the player;
- * a player who dodges away makes the dive miss, after which the phanper simply climbs back into
- * the sky for another try. Unlike phantoms it never burns in daylight and during the day it only
+ * position at the moment it starts and explodes whenever the player stays within 1, 1.5 or 2
+ * blocks of it during the dive (easy, normal and hard difficulty respectively), so only a dodge
+ * beyond that distance makes the dive miss, after which the phanper simply climbs back into the
+ * sky for another try. Unlike phantoms it never burns in daylight and during the day it only
  * hunts players who attacked it first. Drops are gunpowder only - no phantom membrane (see the
  * loot table). A naturally spawned phantom has a 1/3 chance to be replaced by a phanper, and each
  * night has a 1/13 chance to summon one above a random player (see {@code CreeperHooks}).
@@ -88,7 +89,7 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
     BlockPos anchorPoint = BlockPos.ZERO;
     AttackPhase attackPhase = AttackPhase.CIRCLE;
 
-    /** Position the running dive commits to; a player who leaves it makes the dive miss. */
+    /** Position the running dive commits to; only a dodge beyond the difficulty-scaled distance makes the dive miss. */
     @Nullable
     private Vec3 diveTarget;
     private int sweepTicks;
@@ -325,6 +326,19 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
         return this.provokedByPlayer;
     }
 
+    /**
+     * Squared distance a player must dodge to make a dive miss, scaled by difficulty: 1 block on
+     * easy, 1.5 on normal and 2 on hard.
+     */
+    private static double dodgeDistanceSq(Level level)
+    {
+        return switch (level.getDifficulty()) {
+            case PEACEFUL, EASY -> 1.0;
+            case NORMAL -> 2.25;
+            case HARD -> 4.0;
+        };
+    }
+
     // ------------------------------------------------------------- animation
 
     @Override
@@ -525,9 +539,10 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
 
     /**
      * The dive itself. Replaces the vanilla phantom's biting sweep: the phanper locks the dive onto
-     * the player's position at take-off, detonates only when it actually reaches the player, and
-     * treats anything else - the player dodging away, hitting a wall or getting hurt mid-dive - as a
-     * miss that simply flies back into the sky without exploding.
+     * the player's position at take-off, detonates whenever the player stays within 1 / 1.5 / 2
+     * blocks of it during the dive (easy / normal / hard), and treats anything else - a dodge
+     * beyond that distance, hitting a wall or getting hurt mid-dive - as a miss that simply flies
+     * back into the sky without exploding.
      */
     class PhanperSweepAttackGoal extends PhanperMoveTargetGoal
     {
@@ -574,7 +589,7 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
         {
             LivingEntity target = Phanper.this.getTarget();
             if (target != null) {
-                // Commit the dive to where the player is right now; moving away dodges it.
+                // Commit the dive to where the player is right now; only moving beyond the difficulty-scaled distance dodges it.
                 Phanper.this.diveTarget = new Vec3(target.getX(), target.getY(0.5), target.getZ());
             }
             Phanper.this.sweepTicks = 0;
@@ -598,13 +613,18 @@ public class Phanper extends FlyingMob implements Enemy, GeoEntity
             Phanper.this.moveTargetPoint = Phanper.this.diveTarget != null
                 ? Phanper.this.diveTarget
                 : new Vec3(target.getX(), target.getY(0.5), target.getZ());
-            if (Phanper.this.getBoundingBox().inflate(0.3F).intersects(target.getBoundingBox())) {
+            // Difficulty-scaled catch radius: 1 / 1.5 / 2 blocks on easy / normal / hard.
+            double dodgeSq = dodgeDistanceSq(Phanper.this.level());
+            // The dive connects whenever the player is still within it; measure against the player's
+            // mid-body, the point the dive commits to, so a player who does not move is caught on the
+            // tick the phanper arrives instead of being counted as a dodge.
+            if (Phanper.this.distanceToSqr(target.getX(), target.getY(0.5), target.getZ()) < dodgeSq) {
                 Phanper.this.explodePhanper();
             } else if (Phanper.this.horizontalCollision
                 || Phanper.this.hurtTime > 0
-                || Phanper.this.moveTargetPoint.distanceToSqr(Phanper.this.getX(), Phanper.this.getY(), Phanper.this.getZ()) < 4.0
+                || Phanper.this.moveTargetPoint.distanceToSqr(Phanper.this.getX(), Phanper.this.getY(), Phanper.this.getZ()) < dodgeSq
                 || ++Phanper.this.sweepTicks > MAX_SWEEP_TICKS) {
-                // Missed: the player dodged, so no explosion; circle back up into the sky.
+                // Missed: the player dodged beyond the difficulty-scaled distance, so no explosion; circle back up into the sky.
                 Phanper.this.attackPhase = AttackPhase.CIRCLE;
             }
         }

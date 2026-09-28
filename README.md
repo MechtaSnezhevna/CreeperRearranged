@@ -156,7 +156,7 @@ A phantom that carries a block of TNT and turns its dive into a suicide bomb.
 - Spawn with `/summon creeper_rearranged:phanper ~ ~ ~` or its spawn egg.
 
 **Behavior**
-- Like phantoms it circles high in the sky, then dives at you. A dive commits to your position at the moment it starts; if it reaches you it explodes like a creeper (blast radius 3, respects the `mobGriefing` rule).
+- Like phantoms it circles high in the sky, then dives at you. A dive commits to your position at the moment it starts and explodes whenever you are within 1 / 1.5 / 2 blocks of it during the dive on easy / normal / hard difficulty; only a dodge beyond that distance makes it miss (blast radius 3, respects the `mobGriefing` rule).
 - Dodge the dive and the phanper cannot explode; it simply flies back into the sky and may try again.
 - Unlike phantoms it never burns in daylight, and during the day it does not attack players unless you attack it first; at night it hunts like a phantom.
 - Like phantoms it is scared of cats.
