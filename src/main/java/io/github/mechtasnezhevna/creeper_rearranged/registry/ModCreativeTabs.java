@@ -29,6 +29,8 @@ public final class ModCreativeTabs
                 output.accept(ModItems.CHERREEPER_SPAWN_EGG.get());
                 output.accept(ModItems.PHANPER_SPAWN_EGG.get());
                 output.accept(ModItems.CREEPALER_SPAWN_EGG.get());
+                output.accept(ModItems.SLEEPING_CREEPOT.get());
+                output.accept(ModItems.CREEPOT_SPAWN_EGG.get());
         })
             .build()
     );

@@ -4,6 +4,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.cherreeper.Cherreeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepaler.Creepaler;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.creepot.Creepot;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
@@ -107,6 +108,20 @@ public final class ModEntities
             .sized(0.6F, 1.7F)
             .clientTrackingRange(8)
             .build("creepaler")
+    );
+
+    /**
+     * Creepot - a creeper variant that sleeps inside a terracotta pot. It is dug out of suspicious
+     * sand and gravel as a sleeping item, and has a 1/10 chance to grow in place of a trial chamber
+     * decorated pot. Same hitbox and tracking range as the vanilla creeper.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<Creepot>> CREEPOT = ENTITY_TYPES.register(
+        "creepot",
+        () -> EntityType.Builder.<Creepot>of(Creepot::new, MobCategory.MONSTER)
+            .sized(0.8F, 1.3F)
+            .eyeHeight(1.2F)
+            .clientTrackingRange(8)
+            .build("creepot")
     );
 
     /**

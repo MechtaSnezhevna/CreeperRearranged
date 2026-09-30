@@ -9,6 +9,7 @@
   "entity.creeper_rearranged.cherreeper": "苦樱怕",
   "entity.creeper_rearranged.phanper": "苦翼怕",
   "entity.creeper_rearranged.creepaler": "苦力白",
+  "entity.creeper_rearranged.creepot": "苦力罐",
   "entity.creeper_rearranged.underwater_tnt": "被激活的水下TNT",
 
   "subtitles.creeper_rearranged.mob.creepaler.idle": "苦力白：吱嘎作响",
@@ -28,6 +29,8 @@
   "item.creeper_rearranged.cherreeper_spawn_egg": "苦樱怕刷怪蛋",
   "item.creeper_rearranged.phanper_spawn_egg": "苦翼怕刷怪蛋",
   "item.creeper_rearranged.creepaler_spawn_egg": "苦力白刷怪蛋",
+  "item.creeper_rearranged.sleeping_creepot": "沉睡的苦力罐",
+  "item.creeper_rearranged.creepot_spawn_egg": "苦力罐刷怪蛋",
 
   "block.creeper_rearranged.warped_shroomlight": "诡异菌光体",
 

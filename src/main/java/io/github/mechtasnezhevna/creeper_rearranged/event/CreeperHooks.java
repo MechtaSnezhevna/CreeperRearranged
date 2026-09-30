@@ -3,6 +3,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.event;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.cherreeper.Cherreeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepaler.Creepaler;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepop.Creepop;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.creepot.Creepot;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
@@ -11,8 +12,10 @@ import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -104,6 +107,15 @@ public final class CreeperHooks
      */
     private static final Set<EnderMan> ENDERMEN_APPROACHING_WARPERS =
         Collections.newSetFromMap(new WeakHashMap<>());
+    /** How many ticks a queued creepot spawn waits for its chunk to tick before giving up. */
+    private static final int CREEPOT_SPAWN_MAX_RETRIES = 600;
+    /**
+     * Trial chamber pots that {@code CreepotStructureMixin} replaced with air. Structure placement
+     * runs while the chunk is being generated, too early to add entities, so the positions are
+     * queued here and drained by {@link #onLevelTick} once the chunk is actually ticking. Written
+     * from worldgen threads, read from the server thread: a concurrent queue keeps both safe.
+     */
+    private static final Queue<CreepotSpawnEntry> CREEPOT_SPAWNS = new ConcurrentLinkedQueue<>();
 
     private CreeperHooks()
     {
@@ -179,6 +191,63 @@ public final class CreeperHooks
         if (--cherreeperSpawnCheckTicks <= 0) {
             cherreeperSpawnCheckTicks = CHERREEPER_SPAWN_CHECK_INTERVAL;
             spawnCherreeperInGroves(level);
+        }
+        drainCreepotSpawns(level);
+    }
+
+    /**
+     * Grows the trial chamber pots that {@code CreepotStructureMixin} swapped for air into sleeping
+     * creepots. Structure placement happens while the chunk is being generated, which is too early
+     * to add entities, so each position waits until its chunk is loaded and the spot is still empty
+     * ground, then a sleeping, persistent, trial-flagged creepot takes its place. Entries that wait
+     * longer than {@value #CREEPOT_SPAWN_MAX_RETRIES} ticks (a chunk that never ticks, for example)
+     * are dropped.
+     */
+    private static void drainCreepotSpawns(ServerLevel level)
+    {
+        if (CREEPOT_SPAWNS.isEmpty()) {
+            return;
+        }
+        for (CreepotSpawnEntry entry : CREEPOT_SPAWNS) {
+            if (entry.level != level) {
+                continue;
+            }
+            if (--entry.retries < 0 || !level.isLoaded(entry.pos)) {
+                CREEPOT_SPAWNS.remove(entry);
+                continue;
+            }
+            if (!level.getBlockState(entry.pos).isAir() || !level.getBlockState(entry.pos.below()).isSolid()) {
+                continue;
+            }
+            Creepot creepot = new Creepot(ModEntities.CREEPOT.get(), level);
+            creepot.moveTo(entry.pos.getX() + 0.5, entry.pos.getY(), entry.pos.getZ() + 0.5, level.random.nextFloat() * 360.0F, 0.0F);
+            creepot.setSleeping(true);
+            creepot.setTrial(true);
+            creepot.setPersistenceRequired();
+            EventHooks.finalizeMobSpawn(creepot, level, level.getCurrentDifficultyAt(entry.pos), MobSpawnType.STRUCTURE, null);
+            creepot.fillTrialLoot();
+            level.tryAddFreshEntityWithPassengers(creepot);
+            CREEPOT_SPAWNS.remove(entry);
+        }
+    }
+
+    /** Records a trial chamber pot position that should grow into a sleeping creepot. */
+    public static void queueCreepotSpawn(ServerLevel level, BlockPos pos)
+    {
+        CREEPOT_SPAWNS.add(new CreepotSpawnEntry(level, pos));
+    }
+
+    /** One replaced pot waiting for its chunk to tick. */
+    private static final class CreepotSpawnEntry
+    {
+        private final ServerLevel level;
+        private final BlockPos pos;
+        private int retries = CREEPOT_SPAWN_MAX_RETRIES;
+
+        private CreepotSpawnEntry(ServerLevel level, BlockPos pos)
+        {
+            this.level = level;
+            this.pos = pos;
         }
     }
 

@@ -2,6 +2,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
+import io.github.mechtasnezhevna.creeper_rearranged.item.SleepingCreepotItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -102,6 +103,25 @@ public final class ModItems
         "creepaler_spawn_egg",
         () -> new DeferredSpawnEggItem(
             ModEntities.CREEPALER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
+    /**
+     * The archaeology item: brushing a suspicious sand or gravel block can dig this out, and using
+     * it on the ground places a sleeping creepot.
+     */
+    public static final DeferredHolder<Item, Item> SLEEPING_CREEPOT = ITEMS.register(
+        "sleeping_creepot",
+        () -> new SleepingCreepotItem(new Item.Properties().stacksTo(1))
+    );
+
+    public static final DeferredHolder<Item, Item> CREEPOT_SPAWN_EGG = ITEMS.register(
+        "creepot_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.CREEPOT::get,
             0xFFFFFF,
             0xFFFFFF,
             new Item.Properties()

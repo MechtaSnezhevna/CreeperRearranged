@@ -2,6 +2,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.client;
 
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CherreeperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CreepalerRenderer;
+import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CreepotRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CrimperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.CreepopRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.EndperRenderer;
@@ -37,6 +38,7 @@ public final class ModClient
         event.registerEntityRenderer(ModEntities.CHERREEPER.get(), CherreeperRenderer::new);
         event.registerEntityRenderer(ModEntities.PHANPER.get(), PhanperRenderer::new);
         event.registerEntityRenderer(ModEntities.CREEPALER.get(), CreepalerRenderer::new);
+        event.registerEntityRenderer(ModEntities.CREEPOT.get(), CreepotRenderer::new);
     }
 
     /**

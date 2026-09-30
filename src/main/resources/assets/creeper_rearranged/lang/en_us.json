@@ -9,6 +9,7 @@
   "entity.creeper_rearranged.cherreeper": "Cherreeper",
   "entity.creeper_rearranged.phanper": "Phanper",
   "entity.creeper_rearranged.creepaler": "Creepaler",
+  "entity.creeper_rearranged.creepot": "Creepot",
   "entity.creeper_rearranged.underwater_tnt": "Primed Underwater TNT",
 
   "subtitles.creeper_rearranged.mob.creepaler.idle": "Creepaler creaks",
@@ -28,6 +29,8 @@
   "item.creeper_rearranged.cherreeper_spawn_egg": "Cherreeper Spawn Egg",
   "item.creeper_rearranged.phanper_spawn_egg": "Phanper Spawn Egg",
   "item.creeper_rearranged.creepaler_spawn_egg": "Creepaler Spawn Egg",
+  "item.creeper_rearranged.sleeping_creepot": "Sleeping Creepot",
+  "item.creeper_rearranged.creepot_spawn_egg": "Creepot Spawn Egg",
 
   "block.creeper_rearranged.warped_shroomlight": "Warped Shroomlight",
 
