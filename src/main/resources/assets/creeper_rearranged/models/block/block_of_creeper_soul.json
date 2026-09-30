@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "creeper_rearranged:block/block_of_creeper_soul",
+    "side": "creeper_rearranged:block/block_of_creeper_soul_side"
+  }
+}

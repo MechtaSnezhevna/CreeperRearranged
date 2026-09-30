@@ -53,6 +53,23 @@ public final class ModBlocks
         )
     );
 
+    /**
+     * A cyan soul block that hums with creeper magic. It glows with light level 5, and its aura
+     * draws peaceful creepers towards it while driving cats and piglins away; both auras are
+     * implemented by {@code CreeperSoulAttractGoal} and {@code CreeperSoulRepelGoal}, which
+     * {@code CreeperHooks#onEntityJoinLevel} injects into the whitelisted and blacklisted mobs.
+     */
+    public static final DeferredBlock<Block> BLOCK_OF_CREEPER_SOUL = BLOCKS.register(
+        "block_of_creeper_soul",
+        () -> new Block(
+            BlockBehaviour.Properties.of()
+                .mapColor(MapColor.COLOR_CYAN)
+                .strength(3.0F)
+                .sound(SoundType.STONE)
+                .lightLevel(state -> 5)
+        )
+    );
+
     private ModBlocks()
     {
     }

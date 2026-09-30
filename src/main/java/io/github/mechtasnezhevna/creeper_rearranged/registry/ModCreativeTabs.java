@@ -21,6 +21,7 @@ public final class ModCreativeTabs
             .displayItems((parameters, output) -> {
                 output.accept(ModItems.WARPED_SHROOMLIGHT.get());
                 output.accept(ModItems.UNDERWATER_TNT.get());
+                output.accept(ModItems.BLOCK_OF_CREEPER_SOUL.get());
                 output.accept(ModItems.SLEEPING_CREEPOT.get());
                 output.accept(ModItems.HONEEPER_SPAWN_EGG.get());
                 output.accept(ModItems.ENDPER_SPAWN_EGG.get());

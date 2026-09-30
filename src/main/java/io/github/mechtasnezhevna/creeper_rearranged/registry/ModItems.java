@@ -133,6 +133,11 @@ public final class ModItems
         () -> new BlockItem(ModBlocks.UNDERWATER_TNT.get(), new Item.Properties())
     );
 
+    public static final DeferredHolder<Item, Item> BLOCK_OF_CREEPER_SOUL = ITEMS.register(
+        "block_of_creeper_soul",
+        () -> new BlockItem(ModBlocks.BLOCK_OF_CREEPER_SOUL.get(), new Item.Properties())
+    );
+
     /**
      * Vanilla primes a TNT that a dispenser fires; without a behaviour of its own a dispenser would
      * only spit the block item out, so the underwater TNT copies that behaviour with its own entity.

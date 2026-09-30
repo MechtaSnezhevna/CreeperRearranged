@@ -229,6 +229,19 @@ again with a shortened fuse, and it drops itself when mined.
   with its own material instead of vanilla's extra 100 from the water.
 - Like vanilla TNT it belongs to `minecraft:enderman_holdable`, so endermen pick it up.
 
+### Block of Creeper Soul
+
+A cyan soul block that hums with creeper magic: it glows with light level 5, and any peaceful creeper - vanilla or variant - that walks within 15 blocks is drawn towards it and gains Speed III for as long as it stays in the aura, just like a beacon. Cats, piglins and piglin brutes are driven away from the same aura instead.
+
+**How to get it**
+- There is no crafting recipe: it is creative-tab only (or `/setblock` / `/give`).
+
+**Behavior**
+- Light level 5, hardness 3, mined fastest with a pickaxe and dropping itself.
+- Attracts the whitelisted creeper kinds (vanilla creeper, honeeper, endper, crimper, warper, cherreeper, phanper, creepop, creepaler and creepot) while they have no target, are not priming and are not asleep.
+- Provides Speed III up to 15 blocks away for as long as they stay inside the aura.
+- Drives cats, piglins and piglin brutes (the blacklist) out of the aura.
+
 ## Client config
 
 Client-side options are stored in `config/creeper_rearranged-client.toml` and can also be edited in game from the mod list's config button.
