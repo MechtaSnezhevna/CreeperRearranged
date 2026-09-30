@@ -118,8 +118,8 @@ public final class ModEntities
     public static final DeferredHolder<EntityType<?>, EntityType<Creepot>> CREEPOT = ENTITY_TYPES.register(
         "creepot",
         () -> EntityType.Builder.<Creepot>of(Creepot::new, MobCategory.MONSTER)
-            .sized(0.8F, 1.3F)
-            .eyeHeight(1.2F)
+            .sized(0.85F, 1.25F)
+            .eyeHeight(1.05F)
             .clientTrackingRange(8)
             .build("creepot")
     );

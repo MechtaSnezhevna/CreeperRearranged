@@ -40,6 +40,7 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -87,10 +88,13 @@ import software.bernie.geckolib.util.GeckoLibUtil;
  * storage slot.
  *
  * <p>Every creepot carries a decorated-pot-style single storage slot: a right click with an item
- * puts one of it in when there is room - an empty slot accepts anything, a filled slot only more
- * of the same item up to its stack size - and waking a sleeping creepot with a right click puts
- * the item in at the same time. The slot's contents drop alongside the normal loot when the
- * creepot is defeated; gunpowder, bricks and sherds never occupy the slot.
+ * puts the whole held stack in when there is room - an empty slot accepts anything, a filled slot
+ * only more of the same item up to its stack size - and waking a sleeping creepot with a right
+ * click puts the item in at the same time. Flint and steel is no exception: it goes in when there
+ * is room, and only a full or mismatched slot - or a sneaking click - lights the fuse instead.
+ * Lighting a sleeping creepot skips the wake animation and goes straight into the swell. The
+ * slot's contents drop alongside the normal loot when the creepot is defeated; gunpowder, bricks
+ * and sherds never occupy the slot.
  */
 public class Creepot extends VariantCreeper implements GeoEntity
 {
@@ -275,31 +279,48 @@ public class Creepot extends VariantCreeper implements GeoEntity
     /**
      * A right click on a sleeping creepot wakes it neutral - whatever the hand holds, one item goes
      * into the storage slot when there is room, exactly like a decorated pot. Once awake, a right
-     * click with an item puts one into the storage when possible; when the storage is full or holds
-     * a different item, the vanilla creeper interactions (lighting the fuse with flint and steel)
-     * work normally.
+     * click with an item puts the whole held stack into the storage when possible. Flint and steel
+     * is handled like any other item - it goes in when there is room - and only a full or
+     * mismatched slot, or a sneaking click, lights the fuse instead; lighting a sleeping creepot
+     * skips the wake animation. When the storage cannot take the item, the vanilla creeper
+     * interactions (lighting the fuse with a creeper igniter) work normally.
      */
     @Override
     protected InteractionResult mobInteract(Player player, InteractionHand hand)
     {
+        ItemStack held = player.getItemInHand(hand);
+        if (held.is(Items.FLINT_AND_STEEL) && (player.isSecondaryUseActive() || !this.canInsertIntoStorage(held))) {
+            return super.mobInteract(player, hand);
+        }
         if (this.isSleeping()) {
             if (!this.level().isClientSide) {
                 this.wakeUp(false);
-                this.insertIntoStorage(player, player.getItemInHand(hand), true);
+                this.insertIntoStorage(player, held, true);
             }
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
-        if (this.insertIntoStorage(player, player.getItemInHand(hand), false)) {
+        if (this.insertIntoStorage(player, held, false)) {
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
         return super.mobInteract(player, hand);
     }
 
     /**
-     * Mirrors the decorated pot's insert interaction: an empty slot accepts one item, a slot holding
-     * the same item grows until its stack is full, and anything else is left alone (an empty hand
-     * plays the fail sound only while the creepot is waking). Returns whether the click was
-     * consumed by the storage.
+     * Whether a click with this stack would put it into the storage slot.
+     */
+    private boolean canInsertIntoStorage(ItemStack held)
+    {
+        ItemStack stored = this.storedItem;
+        return !held.isEmpty()
+            && (stored.isEmpty()
+                || (ItemStack.isSameItemSameComponents(stored, held) && stored.getCount() < stored.getMaxStackSize()));
+    }
+
+    /**
+     * Mirrors the decorated pot's insert interaction, but takes the whole held stack at once (up to
+     * the slot's capacity): an empty slot accepts any stack, a slot holding the same item grows
+     * until its stack is full, and anything else is left alone (an empty hand plays the fail sound
+     * only while the creepot is waking). Returns whether the click was consumed by the storage.
      */
     private boolean insertIntoStorage(Player player, ItemStack held, boolean failSoundOnEmptyHand)
     {
@@ -317,11 +338,13 @@ public class Creepot extends VariantCreeper implements GeoEntity
         if (!this.level().isClientSide) {
             Item item = held.getItem();
             player.awardStat(Stats.ITEM_USED.get(item));
-            ItemStack consumed = held.consumeAndReturn(1, player);
+            int room = stored.isEmpty() ? held.getMaxStackSize() : stored.getMaxStackSize() - stored.getCount();
+            int put = Math.min(held.getCount(), room);
+            ItemStack consumed = held.consumeAndReturn(put, player);
             if (stored.isEmpty()) {
                 this.storedItem = consumed;
             } else {
-                this.storedItem.grow(1);
+                this.storedItem.grow(put);
             }
             float pitch = 1.0F + 0.7F * ((float) this.storedItem.getCount() / (float) this.storedItem.getMaxStackSize());
             this.level().playSound(null, this.blockPosition(), SoundEvents.DECORATED_POT_INSERT, SoundSource.BLOCKS, 1.0F, pitch);
@@ -329,16 +352,23 @@ public class Creepot extends VariantCreeper implements GeoEntity
         return true;
     }
 
-    /** An attack on a sleeping creepot wakes it; a creative-mode attacker wakes it neutral instead. */
+    /**
+     * An attack on a sleeping creepot wakes it hostile; a creative-mode attacker wakes it neutral
+     * instead. Hurting a woken neutral creepot turns it hostile and sets the attacker as its
+     * target - a creative-mode attacker never turns it hostile.
+     */
     @Override
     public boolean hurt(DamageSource source, float amount)
     {
-        if (this.isSleeping()
-            && !this.level().isClientSide
-            && source.getEntity() instanceof LivingEntity attacker) {
+        if (!this.level().isClientSide && source.getEntity() instanceof LivingEntity attacker) {
             boolean creative = attacker instanceof Player player && player.getAbilities().instabuild;
-            this.wakeUp(!creative);
-            if (!creative) {
+            if (this.isSleeping()) {
+                this.wakeUp(!creative);
+                if (!creative) {
+                    this.setTarget(attacker);
+                }
+            } else if (!this.isHostile() && !creative) {
+                this.setHostile(true);
                 this.setTarget(attacker);
             }
         }
@@ -372,13 +402,17 @@ public class Creepot extends VariantCreeper implements GeoEntity
         super.setSwellDir(swellDir);
     }
 
-    /** A sleeping creepot cannot be lit; flint and steel wakes it neutral instead. */
+    /**
+     * Lights the fuse. A sleeping creepot skips the wake animation: it wakes silently and goes
+     * straight into the swell, so an ignited dormant pot explodes instead of standing up first.
+     */
     @Override
     public void ignite()
     {
-        if (!this.isSleeping()) {
-            super.ignite();
+        if (this.isSleeping()) {
+            this.setSleeping(false);
         }
+        super.ignite();
     }
 
     /** The blast is 0.75x a vanilla creeper's. */

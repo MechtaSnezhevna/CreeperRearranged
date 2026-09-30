@@ -189,16 +189,14 @@ A creeper variant that sleeps inside a terracotta pot. Dormant pots are buried i
 **Spawning and creation**
 - Brushing a suspicious sand or suspicious gravel block can dig out a sleeping creepot item; the chance matches the other rare archaeology loot.
 - Using the sleeping creepot item on the ground places a sleeping creepot, still dormant.
-- One in ten trial chamber decorated pots grows into a sleeping creepot instead (only in newly generated chunks).
+- One in ten trial chamber decorated pots grows into a sleeping creepot instead.
 - Spawn with `/summon creeper_rearranged:creepot ~ ~ ~` or its spawn egg.
 
 **Behavior**
-- A placed sleeping creepot stays dormant until a player wakes it: a right click wakes it neutral, an attack (left click) wakes it hostile on the spot - a creative-mode attacker wakes it neutral instead.
-- While dormant a creepot is a statue: it faces a fixed cardinal direction and never moves or turns.
-- A neutral creepot never hunts players and never detonates on its own; once hostile it chases at half a vanilla creeper's walking speed.
-- A hostile creepot whose target is farther than 16 blocks rolls after it instead of walking, sprinting at 2.25x a vanilla creeper's speed. A roll does not stop at the 16-block boundary: it keeps rolling until the target enters the 3-block explosion range (where it stands up and primes its fuse). A rolling creepot never hops on its own, but the moment an obstacle stops it it jumps the single-block step and rolls on; a roll that stays blocked for about 1.5 seconds stops, re-checks its sight on the target and drops a lost one so the target goal re-acquires it, while a visible one keeps the chase going and every later jump-requiring spot is jumped through even though the distance calls for rolling. It never drops a target it has seen just because the line of sight closes mid-roll, so the roll never stalls. If the explosion is cancelled or dodged it re-checks the distance and rolls again once the target is far enough.
-- Like a decorated pot, a creepot carries one storage slot: a right click puts one item from the hand in when there is room (an empty slot accepts anything, a filled slot only more of the same item up to its stack size), and waking a sleeping creepot with a right click puts the item in at the same time. The slot's contents drop when it is defeated; gunpowder, bricks and sherds never occupy the slot.
-- Every wake-up plays the wake animation, then rolls a 25% chance to play the POT animation once; it never plays it again.
+- A placed sleeping creepot stays dormant until a player wakes it: a right click wakes it neutral, an attack (left click) wakes it hostile on the spot.
+- A neutral creepot never hunts players; hurting it turns it hostile, and once hostile it chases at half a vanilla creeper's walking speed.
+- A hostile creepot whose target is farther than 16 blocks rolls after it instead of walking, sprinting at 2.25x a vanilla creeper's speed.
+- Like a decorated pot, a creepot carries one storage slot: a right click puts the whole held stack in when there is room (don't put your weapon in!). The slot's contents drop when it is defeated, disappear when it explodes.
 - Its blast is 0.75x a vanilla creeper's.
 
 **Drops**
