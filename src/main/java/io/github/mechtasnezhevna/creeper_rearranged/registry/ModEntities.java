@@ -11,6 +11,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.wiskelper.Wiskelper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -122,6 +123,20 @@ public final class ModEntities
             .eyeHeight(1.05F)
             .clientTrackingRange(8)
             .build("creepot")
+    );
+
+    /**
+     * Wiskelper - a wither-skeleton creeper that replaces 2% of the natural wither skeleton spawns
+     * in nether fortresses through {@code CreeperHooks#onFinalizeSpawn}. Sized close to the wither
+     * skeleton to fit its taller model.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<Wiskelper>> WISKELPER = ENTITY_TYPES.register(
+        "wiskelper",
+        () -> EntityType.Builder.<Wiskelper>of(Wiskelper::new, MobCategory.MONSTER)
+            .sized(0.7F, 2.0F)
+            .eyeHeight(1.9F)
+            .clientTrackingRange(8)
+            .build("wiskelper")
     );
 
     /**

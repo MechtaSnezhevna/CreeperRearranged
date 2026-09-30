@@ -69,5 +69,6 @@ public class CreeperRearranged
         event.put(ModEntities.PHANPER.get(), Phanper.createAttributes().build());
         event.put(ModEntities.CREEPALER.get(), Creepaler.createAttributes().build());
         event.put(ModEntities.CREEPOT.get(), Creepot.createAttributes().build());
+        event.put(ModEntities.WISKELPER.get(), Creeper.createAttributes().build());
     }
 }

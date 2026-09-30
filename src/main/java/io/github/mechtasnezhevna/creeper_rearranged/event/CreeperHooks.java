@@ -10,6 +10,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.EndermanApproachWarperGoal;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.wiskelper.Wiskelper;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import java.util.Collections;
 import java.util.HashSet;
@@ -84,6 +85,8 @@ public final class CreeperHooks
     private static final float PHANPER_REPLACES_PHANTOM_CHANCE = 1.0F / 3.0F;
     /** Chance that a natural creeper spawn in a dark forest is replaced by a creepaler. */
     private static final float CREEPALER_REPLACES_CREEPER_CHANCE = 0.5F;
+    /** Chance that a natural wither skeleton spawn in a nether fortress is replaced by a wiskelper. */
+    private static final float WISKELPER_REPLACES_WITHER_SKELETON_CHANCE = 0.02F;
     /** Chance that one phanper spawns above a random player on any given night. */
     private static final float PHANPER_NIGHT_SPAWN_CHANCE = 1.0F / 13.0F;
     /** Nightly phanper spawn checks run at most once per this many ticks. */
@@ -186,6 +189,9 @@ public final class CreeperHooks
         } else if (mob.getType() == EntityType.PHANTOM
             && serverLevel.random.nextFloat() < PHANPER_REPLACES_PHANTOM_CHANCE) {
             replaceWithPhanper(event, serverLevel, mob);
+        } else if (mob.getType() == EntityType.WITHER_SKELETON
+            && serverLevel.random.nextFloat() < WISKELPER_REPLACES_WITHER_SKELETON_CHANCE) {
+            replaceWithWiskelper(event, serverLevel, mob);
         }
     }
 
@@ -505,6 +511,20 @@ public final class CreeperHooks
         phanper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         EventHooks.finalizeMobSpawn(phanper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
         serverLevel.tryAddFreshEntityWithPassengers(phanper);
+    }
+
+    /**
+     * Swaps a natural wither skeleton spawn for a wiskelper. Wither skeletons only spawn naturally
+     * inside nether fortresses (their fortress structure spawn list), so the replacement inherently
+     * stays limited to fortresses without needing a spawn placement or biome modifier.
+     */
+    private static void replaceWithWiskelper(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)
+    {
+        event.setSpawnCancelled(true);
+        Wiskelper wiskelper = new Wiskelper(ModEntities.WISKELPER.get(), serverLevel);
+        wiskelper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
+        EventHooks.finalizeMobSpawn(wiskelper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
+        serverLevel.tryAddFreshEntityWithPassengers(wiskelper);
     }
 
     private static void replaceWithCreepaler(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)

@@ -204,6 +204,21 @@ A creeper variant that sleeps inside a terracotta pot. Dormant pots are buried i
 - A trial chamber creepot is born holding its pot's loot in its storage slot, and it drops along with the storage when defeated.
 - Creepots that die to their own explosion drop nothing.
 
+### Wiskelper
+
+A nether-fortress creeper variant made of wither-skeleton bone, carrying a soul block on its head and a block of TNT on its back. It replaces 2% of the natural wither skeleton spawns in nether fortresses and plays like a vanilla creeper, except that its blast is only 0.8x as wide.
+
+**Spawning and creation**
+- 2% of the wither skeletons that naturally spawn in nether fortresses are wiskelpers instead.
+- Spawn with `/summon creeper_rearranged:wiskelper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- Every 12-18 seconds it absorbs soul power for 3 seconds: while absorbing, every creature within 8 blocks - except wither skeletons, other wiskelpers and the wither itself - is struck by a 5-second wither effect.
+- Its blast is 0.8x a vanilla creeper's.
+
+**Drops**
+- Always: 0-2 gunpowder and 0-2 coal (both more with Looting), plus 1 block of creeper soul.
+
 ## New blocks
 
 ### Warped Shroomlight
