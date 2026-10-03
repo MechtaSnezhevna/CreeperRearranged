@@ -11,6 +11,8 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.EndermanApproachWarperGoal;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.wiskelper.Wiskelper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.withper.Withper;
+import io.github.mechtasnezhevna.creeper_rearranged.registry.ModBlocks;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import java.util.Collections;
 import java.util.HashSet;
@@ -19,6 +21,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -26,6 +29,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.InteractionHand;
@@ -55,8 +59,13 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.NaturalSpawner;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CarvedPumpkinBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.pattern.BlockInWorld;
+import net.minecraft.world.level.block.state.pattern.BlockPattern;
+import net.minecraft.world.level.block.state.pattern.BlockPatternBuilder;
+import net.minecraft.world.level.block.state.predicate.BlockStatePredicate;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.event.EventHooks;
@@ -65,6 +74,7 @@ import net.neoforged.neoforge.event.entity.RegisterSpawnPlacementsEvent;
 import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDamageEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.ExplosionEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
@@ -134,6 +144,8 @@ public final class CreeperHooks
         Collections.newSetFromMap(new WeakHashMap<>());
     /** The creeper kinds the soul block attracts (its whitelist); see {@link #soulWhitelist()}. */
     private static Set<EntityType<?>> soulAttractWhitelist;
+    /** Lazily built BlockPattern for summoning a withper; built at first use, like vanilla's. */
+    private static BlockPattern withperPattern;
     /** How many ticks a queued creepot spawn waits for its chunk to tick before giving up. */
     private static final int CREEPOT_SPAWN_MAX_RETRIES = 600;
     /**
@@ -461,8 +473,10 @@ public final class CreeperHooks
     }
 
     /**
-     * The creeper kinds the soul block attracts: the vanilla creeper plus every mod variant. Built
-     * lazily because {@code DeferredHolder#get()} must not run before the registries are populated.
+     * The creeper kinds the soul block attracts: the vanilla creeper plus every variant that is a
+     * real {@code Creeper}. The phanper is excluded - it is a flying mob, so the walking attract
+     * goal cannot apply to it. Built lazily because {@code DeferredHolder#get()} must not run
+     * before the registries are populated.
      */
     private static Set<EntityType<?>> soulWhitelist()
     {
@@ -475,7 +489,6 @@ public final class CreeperHooks
                 ModEntities.CRIMPER.get(),
                 ModEntities.WARPER.get(),
                 ModEntities.CHERREEPER.get(),
-                ModEntities.PHANPER.get(),
                 ModEntities.CREEPOP.get(),
                 ModEntities.CREEPALER.get(),
                 ModEntities.CREEPOT.get()
@@ -525,6 +538,75 @@ public final class CreeperHooks
         wiskelper.moveTo(mob.getX(), mob.getY(), mob.getZ(), mob.getYRot(), mob.getXRot());
         EventHooks.finalizeMobSpawn(wiskelper, serverLevel, event.getDifficulty(), MobSpawnType.NATURAL, event.getSpawnData());
         serverLevel.tryAddFreshEntityWithPassengers(wiskelper);
+    }
+
+    /**
+     * Summons a withper when the last wither skeleton skull of the soul-block T is placed. The
+     * pattern is the wither's T with the middle soul sand (directly under the middle skull)
+     * replaced by a block of creeper soul; the vanilla wither pattern never matches it because the
+     * soul block is not a {@code WITHER_SUMMON_BASE_BLOCKS}, and this pattern never matches a
+     * vanilla wither T because its centre is plain soul sand. Fired for any entity-placed block,
+     * so dispensers can build the structure too.
+     */
+    public static void onBlockPlace(BlockEvent.EntityPlaceEvent event)
+    {
+        BlockState placed = event.getPlacedBlock();
+        if (!placed.is(Blocks.WITHER_SKELETON_SKULL) && !placed.is(Blocks.WITHER_SKELETON_WALL_SKULL)) {
+            return;
+        }
+        if (!(event.getLevel() instanceof Level level)
+            || level.isClientSide
+            || level.getDifficulty() == Difficulty.PEACEFUL) {
+            return;
+        }
+        BlockPos pos = event.getPos();
+        if (pos.getY() < level.getMinBuildHeight()) {
+            return;
+        }
+        BlockPattern.BlockPatternMatch match = getOrCreateWithperPattern().find(level, pos);
+        if (match == null) {
+            return;
+        }
+        Withper withper = new Withper(ModEntities.WITHPER.get(), level);
+        CarvedPumpkinBlock.clearPatternBlocks(level, match);
+        BlockPos spawnPos = match.getBlock(1, 2, 0).getPos();
+        withper.moveTo(
+            (double) spawnPos.getX() + 0.5,
+            (double) spawnPos.getY() + 0.55,
+            (double) spawnPos.getZ() + 0.5,
+            match.getForwards().getAxis() == Direction.Axis.X ? 0.0F : 90.0F,
+            0.0F
+        );
+        withper.yBodyRot = match.getForwards().getAxis() == Direction.Axis.X ? 0.0F : 90.0F;
+        withper.makeInvulnerable();
+        for (ServerPlayer player : level.getEntitiesOfClass(ServerPlayer.class, withper.getBoundingBox().inflate(50.0))) {
+            CriteriaTriggers.SUMMONED_ENTITY.trigger(player, withper);
+        }
+        level.addFreshEntity(withper);
+        CarvedPumpkinBlock.updatePatternBlocks(level, match);
+    }
+
+    /** The soul-block T: wither skeleton skulls on top, soul sand body, creeper soul at the centre. */
+    private static BlockPattern getOrCreateWithperPattern()
+    {
+        BlockPattern pattern = withperPattern;
+        if (pattern == null) {
+            pattern = BlockPatternBuilder.start()
+                .aisle("^^^", "#$#", "~#~")
+                .where('#', block -> block.getState().is(BlockTags.WITHER_SUMMON_BASE_BLOCKS))
+                .where(
+                    '^',
+                    BlockInWorld.hasState(
+                        BlockStatePredicate.forBlock(Blocks.WITHER_SKELETON_SKULL)
+                            .or(BlockStatePredicate.forBlock(Blocks.WITHER_SKELETON_WALL_SKULL))
+                    )
+                )
+                .where('$', BlockInWorld.hasState(BlockStatePredicate.forBlock(ModBlocks.BLOCK_OF_CREEPER_SOUL.get())))
+                .where('~', block -> block.getState().isAir())
+                .build();
+            withperPattern = pattern;
+        }
+        return pattern;
     }
 
     private static void replaceWithCreepaler(FinalizeSpawnEvent event, ServerLevel serverLevel, Mob mob)

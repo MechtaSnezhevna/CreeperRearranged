@@ -138,6 +138,16 @@ public final class ModItems
         )
     );
 
+    public static final DeferredHolder<Item, Item> WITHPER_SPAWN_EGG = ITEMS.register(
+        "withper_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.WITHPER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
     public static final DeferredHolder<Item, Item> UNDERWATER_TNT = ITEMS.register(
         "underwater_tnt",
         () -> new BlockItem(ModBlocks.UNDERWATER_TNT.get(), new Item.Properties())

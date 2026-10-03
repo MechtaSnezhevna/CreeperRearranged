@@ -33,6 +33,7 @@ public final class ModCreativeTabs
                 output.accept(ModItems.CREEPALER_SPAWN_EGG.get());
                 output.accept(ModItems.CREEPOT_SPAWN_EGG.get());
                 output.accept(ModItems.WISKELPER_SPAWN_EGG.get());
+                output.accept(ModItems.WITHPER_SPAWN_EGG.get());
         })
             .build()
     );

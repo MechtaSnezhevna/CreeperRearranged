@@ -213,11 +213,33 @@ A nether-fortress creeper variant made of wither-skeleton bone, carrying a soul 
 - Spawn with `/summon creeper_rearranged:wiskelper ~ ~ ~` or its spawn egg.
 
 **Behavior**
-- Every 12-18 seconds it absorbs soul power for 3 seconds: while absorbing, every creature within 8 blocks - except wither skeletons, other wiskelpers and the wither itself - is struck by a 5-second wither effect.
+- Every 12-18 seconds it absorbs soul power for 3 seconds: while absorbing, every creature within 8 blocks - except wither skeletons, other wiskelpers, the wither and the withper boss - is struck by a 5-second wither effect.
 - Its blast is 0.8x a vanilla creeper's.
 
 **Drops**
 - Always: 0-2 gunpowder and 0-2 coal (both more with Looting), plus 1 block of creeper soul.
+
+### Withper
+
+凋苦灵 - a wither-flavoured creeper boss with 300 HP, a purple boss bar and a penchant for the oldest weapon there is: the self-destruct. It is summoned like the wither, except that the soul sand directly under the middle skull is a block of creeper soul. It flies after the nearest player, never fires wither skulls, and wins or loses by blowing itself up.
+
+**Spawning and creation**
+- Place three wither skeleton skulls on a T of soul sand or soul soil whose centre block (directly under the middle skull) is a block of creeper soul; placing the last skull summons it and consumes the structure.
+- Spawn with `/summon creeper_rearranged:withper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- Flies and always hunts the nearest player first; it never shoots wither skulls.
+- Like the wither, it wakes at a third of its health and heals back to full during its 4-second invulnerable wake-up.
+- Within 6 blocks of its target it stops and charges for 15 seconds (swelling and flashing white like a creeper, with a notched charge bar on its boss bar), then detonates with a blast twice as wide as a charged creeper's (radius 12).
+- Fleeing beyond 6 blocks, breaking line of sight or losing the target does not cancel the charge outright: it burns down at the same speed it built up, and only then does the boss start chasing again.
+- It always prefers the nearest player as its target; when no player is in reach, other creatures that attack it earn its hatred and are hunted down instead.
+- The first blast knocks it into phase two: only the middle head remains, three wiskelpers are summoned to fight alongside it, and it moves 1.5x as fast.
+- In phase two it charges 30 seconds before a blast three times as wide as a charged creeper's (radius 18) - and that second blast kills it.
+- It shares the wither's defences: no status effects, immune to wither damage and the wither's attacks, no riding or portals, and it never despawns outside peaceful mode.
+- Summoning it triggers the vanilla summoned-entity trigger, like summoning the wither does.
+
+**Drops**
+- Always: 2 nether stars and 16 gunpowder - also when it dies to its own second blast.
 
 ## New blocks
 

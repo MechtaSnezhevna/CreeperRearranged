@@ -12,9 +12,11 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimed
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.wiskelper.Wiskelper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.withper.Withper;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -137,6 +139,21 @@ public final class ModEntities
             .eyeHeight(1.9F)
             .clientTrackingRange(8)
             .build("wiskelper")
+    );
+
+    /**
+     * Withper (凋苦灵) - a flying creeper boss summoned like the wither from a T of soul sand whose
+     * centre block is a block of creeper soul. Its builder mirrors the wither's: same hitbox, fire
+     * immunity, wither-rose immunity and tracking range.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<Withper>> WITHPER = ENTITY_TYPES.register(
+        "withper",
+        () -> EntityType.Builder.<Withper>of(Withper::new, MobCategory.MONSTER)
+            .fireImmune()
+            .immuneTo(Blocks.WITHER_ROSE)
+            .sized(0.9F, 3.5F)
+            .clientTrackingRange(10)
+            .build("withper")
     );
 
     /**

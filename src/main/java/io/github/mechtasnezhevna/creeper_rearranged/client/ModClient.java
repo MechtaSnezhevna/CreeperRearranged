@@ -10,6 +10,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.HoneeperRend
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.PhanperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.WarperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.WiskelperRenderer;
+import io.github.mechtasnezhevna.creeper_rearranged.client.renderer.WithperRenderer;
 import io.github.mechtasnezhevna.creeper_rearranged.config.ClientConfig;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import net.minecraft.client.renderer.entity.TntRenderer;
@@ -41,6 +42,7 @@ public final class ModClient
         event.registerEntityRenderer(ModEntities.CREEPALER.get(), CreepalerRenderer::new);
         event.registerEntityRenderer(ModEntities.CREEPOT.get(), CreepotRenderer::new);
         event.registerEntityRenderer(ModEntities.WISKELPER.get(), WiskelperRenderer::new);
+        event.registerEntityRenderer(ModEntities.WITHPER.get(), WithperRenderer::new);
     }
 
     /**

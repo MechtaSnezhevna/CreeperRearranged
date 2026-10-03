@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.entity.wiskelper;
 
 import io.github.mechtasnezhevna.creeper_rearranged.entity.VariantCreeper;
+import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
 import java.util.Set;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -59,7 +60,8 @@ public class Wiskelper extends VariantCreeper implements GeoEntity
     private static final int WITHER_DURATION = 100;
     /**
      * Entity kinds the absorption leaves alone (the blacklist). Wiskelpers are always immune on
-     * top of this list; the planned {@code 凋苦灵} joins here once it exists.
+     * top of this list; {@code 凋苦灵} is checked separately at runtime because its registry holder
+     * must not be resolved while the registries are still being populated.
      */
     private static final Set<EntityType<?>> ABSORB_BLACKLIST = Set.of(
         EntityType.WITHER_SKELETON,
@@ -129,10 +131,12 @@ public class Wiskelper extends VariantCreeper implements GeoEntity
         ).forEach(entity -> entity.addEffect(new MobEffectInstance(MobEffects.WITHER, WITHER_DURATION), this));
     }
 
-    /** Whether the absorption leaves the given entity alone: wiskelpers and the blacklist. */
+    /** Whether the absorption leaves the given entity alone: wiskelpers, the blacklist and 凋苦灵. */
     private boolean isImmuneToAbsorption(Entity entity)
     {
-        return entity.getType() == this.getType() || ABSORB_BLACKLIST.contains(entity.getType());
+        return entity.getType() == this.getType()
+            || ABSORB_BLACKLIST.contains(entity.getType())
+            || entity.getType() == ModEntities.WITHPER.get();
     }
 
     /** Whether the absorb animation should play; synced from the server. */

@@ -11,6 +11,7 @@
   "entity.creeper_rearranged.creepaler": "苦力白",
   "entity.creeper_rearranged.creepot": "苦力罐",
   "entity.creeper_rearranged.wiskelper": "凋零骷力怕",
+  "entity.creeper_rearranged.withper": "凋苦灵",
   "entity.creeper_rearranged.underwater_tnt": "被激活的水下TNT",
 
   "subtitles.creeper_rearranged.mob.creepaler.idle": "苦力白：吱嘎作响",
@@ -33,6 +34,7 @@
   "item.creeper_rearranged.sleeping_creepot": "沉睡的苦力罐",
   "item.creeper_rearranged.creepot_spawn_egg": "苦力罐刷怪蛋",
   "item.creeper_rearranged.wiskelper_spawn_egg": "凋零骷力怕刷怪蛋",
+  "item.creeper_rearranged.withper_spawn_egg": "凋苦灵刷怪蛋",
 
   "block.creeper_rearranged.warped_shroomlight": "诡异菌光体",
   "block.creeper_rearranged.underwater_tnt": "水下TNT",
