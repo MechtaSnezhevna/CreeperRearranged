@@ -151,7 +151,7 @@ public final class ModEntities
         () -> EntityType.Builder.<Withper>of(Withper::new, MobCategory.MONSTER)
             .fireImmune()
             .immuneTo(Blocks.WITHER_ROSE)
-            .sized(0.9F, 3.5F)
+            .sized(0.9F, 2.2F)
             .clientTrackingRange(10)
             .build("withper")
     );
