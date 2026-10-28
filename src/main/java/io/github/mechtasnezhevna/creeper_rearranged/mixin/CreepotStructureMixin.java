@@ -1,6 +1,6 @@
 package io.github.mechtasnezhevna.creeper_rearranged.mixin;
 
-import io.github.mechtasnezhevna.creeper_rearranged.event.CreeperHooks;
+import io.github.mechtasnezhevna.creeper_rearranged.event.CreeperCustomSpawners;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.core.BlockPos;
@@ -15,15 +15,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
 
-/**
- * Grows one in ten trial chamber decorated pots into a dormant creepot.
- *
- * <p>NeoForge has no structure-placement event, so a mixin redirects the {@code processBlockInfos}
- * call inside {@link StructureTemplate#placeInWorld}. Pots whose loot table lives under
- * {@code minecraft:pots/trial_chambers/} are swapped for air with a {@value #CREEPOT_REPLACES_TRIAL_POT_CHANCE}
- * chance and remembered in {@link CreeperHooks}; the level tick drains the queue and spawns the
- * sleeping creepot as soon as the chunk is actually ticking.
- */
 @Mixin(StructureTemplate.class)
 public abstract class CreepotStructureMixin
 {
@@ -43,13 +34,13 @@ public abstract class CreepotStructureMixin
             target = "Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;processBlockInfos(Lnet/minecraft/world/level/ServerLevelAccessor;Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructurePlaceSettings;Ljava/util/List;Lnet/minecraft/world/level/levelgen/structure/templatesystem/StructureTemplate;)Ljava/util/List;"
         )
     )
-    private static List<StructureTemplate.StructureBlockInfo> creeperRearranged$replaceTrialChamberPots(
-        ServerLevelAccessor levelAccessor,
-        BlockPos origin,
-        BlockPos pivot,
-        StructurePlaceSettings settings,
-        List<StructureTemplate.StructureBlockInfo> infos,
-        StructureTemplate template
+    private List<StructureTemplate.StructureBlockInfo> creeperRearranged$replaceTrialChamberPots(
+            ServerLevelAccessor levelAccessor,
+            BlockPos origin,
+            BlockPos pivot,
+            StructurePlaceSettings settings,
+            List<StructureTemplate.StructureBlockInfo> infos,
+            StructureTemplate template
     )
     {
         List<StructureTemplate.StructureBlockInfo> processed =
@@ -63,7 +54,7 @@ public abstract class CreepotStructureMixin
             if (info.state().is(Blocks.DECORATED_POT)
                 && isTrialChamberPot(info)
                 && random.nextFloat() < CREEPOT_REPLACES_TRIAL_POT_CHANCE) {
-                CreeperHooks.queueCreepotSpawn(serverLevel, info.pos());
+                CreeperCustomSpawners.queueCreepotSpawn(serverLevel, info.pos());
                 replaced.add(new StructureTemplate.StructureBlockInfo(info.pos(), Blocks.AIR.defaultBlockState(), null));
             } else {
                 replaced.add(info);

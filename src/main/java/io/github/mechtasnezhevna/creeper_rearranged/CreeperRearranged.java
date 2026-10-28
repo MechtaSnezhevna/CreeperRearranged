@@ -6,7 +6,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.creepot.Creepot;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.withper.Withper;
-import io.github.mechtasnezhevna.creeper_rearranged.event.CreeperHooks;
+import io.github.mechtasnezhevna.creeper_rearranged.event.*;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModBlocks;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModCreativeTabs;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModEntities;
@@ -35,15 +35,15 @@ public class CreeperRearranged
 
         modEventBus.addListener(CreeperRearranged::onCommonSetup);
         modEventBus.addListener(CreeperRearranged::registerEntityAttributes);
-        modEventBus.addListener(CreeperHooks::onRegisterSpawnPlacements);
+        modEventBus.addListener(CreeperSpawnPlacements::onRegisterSpawnPlacements);
 
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onFinalizeSpawn);
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityJoinLevel);
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onEntityInteract);
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onLivingDamage);
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onExplosionDetonate);
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onLevelTick);
-        NeoForge.EVENT_BUS.addListener(CreeperHooks::onBlockPlace);
+        NeoForge.EVENT_BUS.addListener(CreeperSpawnReplacement::onFinalizeSpawn);
+        NeoForge.EVENT_BUS.addListener(GoalInjector::onEntityJoinLevel);
+        NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onEntityInteract);
+        NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onLivingDamage);
+        NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onExplosionDetonate);
+        NeoForge.EVENT_BUS.addListener(CreeperCustomSpawners::onLevelTick);
+        NeoForge.EVENT_BUS.addListener(WithperSummoning::onBlockPlace);
 
         if (FMLEnvironment.dist.isClient()) {
             modEventBus.addListener(ModClient::registerRenderers);
