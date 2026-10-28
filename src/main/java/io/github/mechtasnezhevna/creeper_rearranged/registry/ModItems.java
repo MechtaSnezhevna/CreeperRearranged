@@ -153,9 +153,9 @@ public final class ModItems
         () -> new BlockItem(ModBlocks.UNDERWATER_TNT.get(), new Item.Properties())
     );
 
-    public static final DeferredHolder<Item, Item> BLOCK_OF_CREEPER_SOUL = ITEMS.register(
+    public static final DeferredHolder<Item, Item> SOUL_CORRUPTED_TNT = ITEMS.register(
         "block_of_creeper_soul",
-        () -> new BlockItem(ModBlocks.BLOCK_OF_CREEPER_SOUL.get(), new Item.Properties())
+        () -> new BlockItem(ModBlocks.SOUL_CORRUPTED_TNT.get(), new Item.Properties())
     );
 
     /**

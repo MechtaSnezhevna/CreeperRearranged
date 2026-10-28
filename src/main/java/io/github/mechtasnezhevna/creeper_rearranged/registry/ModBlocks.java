@@ -59,14 +59,15 @@ public final class ModBlocks
      * implemented by {@code CreeperSoulAttractGoal} and {@code CreeperSoulRepelGoal}, which
      * {@code CreeperHooks#onEntityJoinLevel} injects into the whitelisted and blacklisted mobs.
      */
-    public static final DeferredBlock<Block> BLOCK_OF_CREEPER_SOUL = BLOCKS.register(
-        "block_of_creeper_soul",
+    public static final DeferredBlock<Block> SOUL_CORRUPTED_TNT = BLOCKS.register(
+        "soul_corrupted_tnt",
         () -> new Block(
             BlockBehaviour.Properties.of()
                 .mapColor(MapColor.COLOR_CYAN)
-                .strength(3.0F)
-                .sound(SoundType.STONE)
-                .lightLevel(state -> 5)
+                .instabreak()
+                .sound(SoundType.SOUL_SAND)
+                .ignitedByLava()
+                .isRedstoneConductor((state, level, pos) -> false)
         )
     );
 

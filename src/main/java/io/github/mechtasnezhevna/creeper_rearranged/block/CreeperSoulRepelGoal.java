@@ -56,7 +56,7 @@ public class CreeperSoulRepelGoal extends Goal
         if (this.soulBlock == null) {
             return false;
         }
-        if (!this.mob.level().getBlockState(this.soulBlock).is(ModBlocks.BLOCK_OF_CREEPER_SOUL)) {
+        if (!this.mob.level().getBlockState(this.soulBlock).is(ModBlocks.SOUL_CORRUPTED_TNT)) {
             return false;
         }
         return this.mob.blockPosition().distSqr(this.soulBlock) <= ESCAPE_DISTANCE * ESCAPE_DISTANCE;
@@ -126,7 +126,7 @@ public class CreeperSoulRepelGoal extends Goal
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     BlockPos pos = center.offset(dx, dy, dz);
-                    if (this.mob.level().getBlockState(pos).is(ModBlocks.BLOCK_OF_CREEPER_SOUL)) {
+                    if (this.mob.level().getBlockState(pos).is(ModBlocks.SOUL_CORRUPTED_TNT)) {
                         double distance = center.distSqr(pos);
                         if (distance <= nearestDistance) {
                             nearest = pos;

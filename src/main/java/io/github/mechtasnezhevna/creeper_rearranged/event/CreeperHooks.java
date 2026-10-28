@@ -601,7 +601,7 @@ public final class CreeperHooks
                             .or(BlockStatePredicate.forBlock(Blocks.WITHER_SKELETON_WALL_SKULL))
                     )
                 )
-                .where('$', BlockInWorld.hasState(BlockStatePredicate.forBlock(ModBlocks.BLOCK_OF_CREEPER_SOUL.get())))
+                .where('$', BlockInWorld.hasState(BlockStatePredicate.forBlock(ModBlocks.SOUL_CORRUPTED_TNT.get())))
                 .where('~', block -> block.getState().isAir())
                 .build();
             withperPattern = pattern;

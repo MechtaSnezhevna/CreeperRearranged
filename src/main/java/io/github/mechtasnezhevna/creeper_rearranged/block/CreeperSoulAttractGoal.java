@@ -52,7 +52,7 @@ public class CreeperSoulAttractGoal extends Goal
     public boolean canUse()
     {
         if (this.soulBlock != null
-            && !this.creeper.level().getBlockState(this.soulBlock).is(ModBlocks.BLOCK_OF_CREEPER_SOUL)) {
+            && !this.creeper.level().getBlockState(this.soulBlock).is(ModBlocks.SOUL_CORRUPTED_TNT)) {
             this.soulBlock = null;
         }
         this.rescanIfDue();
@@ -141,7 +141,7 @@ public class CreeperSoulAttractGoal extends Goal
             for (int dx = -radius; dx <= radius; dx++) {
                 for (int dz = -radius; dz <= radius; dz++) {
                     BlockPos pos = center.offset(dx, dy, dz);
-                    if (this.creeper.level().getBlockState(pos).is(ModBlocks.BLOCK_OF_CREEPER_SOUL)) {
+                    if (this.creeper.level().getBlockState(pos).is(ModBlocks.SOUL_CORRUPTED_TNT)) {
                         double distance = center.distSqr(pos);
                         if (distance <= nearestDistance) {
                             nearest = pos;
