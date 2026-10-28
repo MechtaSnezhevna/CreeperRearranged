@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
-    "creeper_rearranged:underwater_tnt"
+    "creeper_rearranged:underwater_tnt",
+    "creeper_rearranged:soul_corrupted_tnt"
   ]
 }

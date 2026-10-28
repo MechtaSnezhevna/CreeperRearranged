@@ -54,20 +54,6 @@ import software.bernie.geckolib.animation.PlayState;
 import software.bernie.geckolib.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
-/**
- * Withper (凋苦灵) - a wither-flavoured creeper boss.
- *
- * <p>It is summoned like the wither, except that the soul sand directly under the middle skull is
- * a {@code block_of_creeper_soul}. It flies, always hunts the nearest player and never fires
- * wither skulls: instead it drifts close and charges for 15 seconds, then blows itself up with a
- * blast twice as wide as a charged creeper's and enters phase two. In phase two only the middle
- * head remains, three wiskelpers are summoned, it moves faster and charges 30 seconds before a
- * blast three times as wide as a charged creeper's - which is also its last act: the second blast
-* kills it, dropping 2 nether stars and 16 gunpowder. It has the wither's 300 HP, a purple
- * boss bar, the wither's invulnerability rules and a 4-second invulnerable wake: like the wither
- * it starts that wake at a third of its health and heals back to full while playing the summoning
- * animation. While charging, the boss bar switches to a notched overlay that shows charge progress.
- */
 public class Withper extends VariantCreeper implements GeoEntity
 {
     /** GeckoLib animation controller name. */

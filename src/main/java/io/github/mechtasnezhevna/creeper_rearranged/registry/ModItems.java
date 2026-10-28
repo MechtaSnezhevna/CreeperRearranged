@@ -154,7 +154,7 @@ public final class ModItems
     );
 
     public static final DeferredHolder<Item, Item> SOUL_CORRUPTED_TNT = ITEMS.register(
-        "block_of_creeper_soul",
+        "soul_corrupted_tnt",
         () -> new BlockItem(ModBlocks.SOUL_CORRUPTED_TNT.get(), new Item.Properties())
     );
 

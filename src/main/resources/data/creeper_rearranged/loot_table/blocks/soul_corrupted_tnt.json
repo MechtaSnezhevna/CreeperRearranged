@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "creeper_rearranged:block_of_creeper_soul"
+          "name": "creeper_rearranged:soul_corrupted_tnt"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "creeper_rearranged:blocks/block_of_creeper_soul"
+  "random_sequence": "creeper_rearranged:blocks/soul_corrupted_tnt"
 }
