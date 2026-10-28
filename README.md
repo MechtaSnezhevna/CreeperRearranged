@@ -274,10 +274,12 @@ A cyan soul block that hums with creeper magic: it glows with light level 5, and
 - There is no crafting recipe: it is creative-tab only (or `/setblock` / `/give`).
 
 **Behavior**
-- Light level 5, hardness 3, mined fastest with a pickaxe and dropping itself.
+- It breaks instantly with a soul-sand sound, like vanilla TNT, and drops itself when mined.
 - Attracts the whitelisted creeper kinds (vanilla creeper, honeeper, endper, crimper, warper, cherreeper, phanper, creepop, creepaler and creepot) while they have no target, are not priming and are not asleep.
 - Provides Speed III up to 15 blocks away for as long as they stay inside the aura.
 - Drives cats, piglins and piglin brutes (the blacklist) out of the aura.
+- It is also a working TNT: same instant breaking, 4 second fuse and every ignition path as vanilla TNT - redstone, flint and steel, fire charges, burning arrows, fire spreading onto it and dispensers - and a blast that destroys it primes it again with a shortened fuse.
+- Its blast is vanilla TNT's (radius 4), and every creature the blast damages is struck by 5 seconds of Wither; creatures that are naturally immune to Wither stay immune.
 
 ## Client config
 

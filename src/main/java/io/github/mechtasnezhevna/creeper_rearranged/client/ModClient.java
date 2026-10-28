@@ -32,6 +32,7 @@ public final class ModClient
     public static void registerRenderers(EntityRenderersEvent.RegisterRenderers event)
     {
         event.registerEntityRenderer(ModEntities.UNDERWATER_TNT.get(), TntRenderer::new);
+        event.registerEntityRenderer(ModEntities.SOUL_CORRUPTED_TNT.get(), TntRenderer::new);
         event.registerEntityRenderer(ModEntities.HONEEPER.get(), HoneeperRenderer::new);
         event.registerEntityRenderer(ModEntities.ENDPER.get(), EndperRenderer::new);
         event.registerEntityRenderer(ModEntities.CRIMPER.get(), CrimperRenderer::new);

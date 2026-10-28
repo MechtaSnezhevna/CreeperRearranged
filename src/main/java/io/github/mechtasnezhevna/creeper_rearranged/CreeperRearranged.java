@@ -41,6 +41,7 @@ public class CreeperRearranged
         NeoForge.EVENT_BUS.addListener(GoalInjector::onEntityJoinLevel);
         NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onLivingDamage);
+        NeoForge.EVENT_BUS.addListener(SoulTntWithering::onLivingDamage);
         NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onExplosionDetonate);
         NeoForge.EVENT_BUS.addListener(CreeperCustomSpawners::onLevelTick);
         NeoForge.EVENT_BUS.addListener(WithperSummoning::onBlockPlace);

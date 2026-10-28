@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "unstable=false": {
+      "model": "creeper_rearranged:block/soul_corrupted_tnt"
+    },
+    "unstable=true": {
       "model": "creeper_rearranged:block/soul_corrupted_tnt"
     }
   }

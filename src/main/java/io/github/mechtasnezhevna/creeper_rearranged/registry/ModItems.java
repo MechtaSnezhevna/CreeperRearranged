@@ -1,6 +1,7 @@
 package io.github.mechtasnezhevna.creeper_rearranged.registry;
 
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.item.SoulCorruptedPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.item.SleepingCreepotItem;
 import net.minecraft.core.BlockPos;
@@ -160,7 +161,8 @@ public final class ModItems
 
     /**
      * Vanilla primes a TNT that a dispenser fires; without a behaviour of its own a dispenser would
-     * only spit the block item out, so the underwater TNT copies that behaviour with its own entity.
+     * only spit the block item out, so the underwater TNT and the soul corrupted TNT copy that
+     * behaviour with their own entities.
      */
     public static void registerDispenseBehaviors()
     {
@@ -171,6 +173,23 @@ public final class ModItems
                 Level level = source.level();
                 BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
                 UnderwaterPrimedTnt primedTnt = new UnderwaterPrimedTnt(
+                    level, (double)pos.getX() + 0.5, (double)pos.getY(), (double)pos.getZ() + 0.5, null
+                );
+                level.addFreshEntity(primedTnt);
+                level.playSound(null, primedTnt.getX(), primedTnt.getY(), primedTnt.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(null, GameEvent.ENTITY_PLACE, pos);
+                stack.shrink(1);
+                return stack;
+            }
+        });
+
+        DispenserBlock.registerBehavior(SOUL_CORRUPTED_TNT.get(), new DefaultDispenseItemBehavior() {
+            @Override
+            protected ItemStack execute(BlockSource source, ItemStack stack)
+            {
+                Level level = source.level();
+                BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+                SoulCorruptedPrimedTnt primedTnt = new SoulCorruptedPrimedTnt(
                     level, (double)pos.getX() + 0.5, (double)pos.getY(), (double)pos.getZ() + 0.5, null
                 );
                 level.addFreshEntity(primedTnt);

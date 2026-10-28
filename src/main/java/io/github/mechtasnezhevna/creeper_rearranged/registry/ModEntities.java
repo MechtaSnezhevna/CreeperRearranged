@@ -8,6 +8,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.creepot.Creepot;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.crimper.Crimper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.item.SoulCorruptedPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
@@ -169,6 +170,21 @@ public final class ModEntities
             .clientTrackingRange(10)
             .updateInterval(10)
             .build("underwater_tnt")
+    );
+
+    /**
+     * The primed entity of the soul corrupted TNT. Same builder as the underwater TNT: the blast
+     * keeps vanilla TNT's reach and hitbox, and only adds withering to its victims.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<SoulCorruptedPrimedTnt>> SOUL_CORRUPTED_TNT = ENTITY_TYPES.register(
+        "soul_corrupted_tnt",
+        () -> EntityType.Builder.<SoulCorruptedPrimedTnt>of(SoulCorruptedPrimedTnt::new, MobCategory.MISC)
+            .fireImmune()
+            .sized(0.98F, 0.98F)
+            .eyeHeight(0.15F)
+            .clientTrackingRange(10)
+            .updateInterval(10)
+            .build("soul_corrupted_tnt")
     );
 
     private ModEntities()
