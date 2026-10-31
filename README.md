@@ -206,7 +206,7 @@ A creeper variant that sleeps inside a terracotta pot. Dormant pots are buried i
 
 ### Wiskelper
 
-A nether-fortress creeper variant made of wither-skeleton bone, carrying a soul block on its head and a block of TNT on its back. It replaces 2% of the natural wither skeleton spawns in nether fortresses and plays like a vanilla creeper, except that its blast is only 0.8x as wide.
+A nether-fortress creeper variant, carrying a soul corrupted TNT. It replaces 2% of the natural wither skeleton spawns in nether fortresses and plays like a vanilla creeper, except that its blast is only 0.8x as wide.
 
 **Spawning and creation**
 - 2% of the wither skeletons that naturally spawn in nether fortresses are wiskelpers instead.
@@ -217,14 +217,14 @@ A nether-fortress creeper variant made of wither-skeleton bone, carrying a soul 
 - Its blast is 0.8x a vanilla creeper's.
 
 **Drops**
-- Always: 0-2 gunpowder and 0-2 coal (both more with Looting), plus 1 block of creeper soul.
+- Always: 0-2 gunpowder and 0-2 coal (both more with Looting), plus 1 soul corrupted TNT.
 
 ### Withper
 
-凋苦灵 - a wither-flavoured creeper boss with 300 HP, a purple boss bar and a penchant for the oldest weapon there is: the self-destruct. It is summoned like the wither, except that the soul sand directly under the middle skull is a block of creeper soul. It flies after the nearest player, never fires wither skulls, and wins or loses by blowing itself up.
+A wither-flavoured creeper boss with 300 HP, a purple boss bar and a penchant for the oldest weapon there is: the self-destruct. It is summoned like the wither, except that the soul sand directly under the middle skull is a block of creeper soul. It flies after the nearest player, never fires wither skulls, and wins or loses by blowing itself up.
 
 **Spawning and creation**
-- Place three wither skeleton skulls on a T of soul sand or soul soil whose centre block (directly under the middle skull) is a block of creeper soul; placing the last skull summons it and consumes the structure.
+- Place three wither skeleton skulls on a T of soul sand or soul soil whose centre block (directly under the middle skull) is a soul corrupted TNT; placing the last skull summons it.
 - Spawn with `/summon creeper_rearranged:withper ~ ~ ~` or its spawn egg.
 
 **Behavior**
@@ -266,20 +266,17 @@ again with a shortened fuse, and it drops itself when mined.
   with its own material instead of vanilla's extra 100 from the water.
 - Like vanilla TNT it belongs to `minecraft:enderman_holdable`, so endermen pick it up.
 
-### Block of Creeper Soul
+### Soul Corrupted TNT
 
-A cyan soul block that hums with creeper magic: it glows with light level 5, and any peaceful creeper - vanilla or variant - that walks within 15 blocks is drawn towards it and gains Speed III for as long as it stays in the aura, just like a beacon. Cats, piglins and piglin brutes are driven away from the same aura instead.
+Soul theme TNT variant, driven away cats, piglins and piglin brutes.
 
 **How to get it**
 - There is no crafting recipe: it is creative-tab only (or `/setblock` / `/give`).
 
 **Behavior**
-- It breaks instantly with a soul-sand sound, like vanilla TNT, and drops itself when mined.
-- Attracts the whitelisted creeper kinds (vanilla creeper, honeeper, endper, crimper, warper, cherreeper, phanper, creepop, creepaler and creepot) while they have no target, are not priming and are not asleep.
-- Provides Speed III up to 15 blocks away for as long as they stay inside the aura.
-- Drives cats, piglins and piglin brutes (the blacklist) out of the aura.
-- It is also a working TNT: same instant breaking, 4 second fuse and every ignition path as vanilla TNT - redstone, flint and steel, fire charges, burning arrows, fire spreading onto it and dispensers - and a blast that destroys it primes it again with a shortened fuse.
-- Its blast is vanilla TNT's (radius 4), and every creature the blast damages is struck by 5 seconds of Wither; creatures that are naturally immune to Wither stay immune.
+- Most of its behaviors are the same as TNT. 
+- Drives cats, piglins and piglin brutes out of the aura.
+- Every creature the blast damages is struck by 5 seconds of Wither.
 
 ## Client config
 
