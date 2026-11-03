@@ -271,7 +271,7 @@ again with a shortened fuse, and it drops itself when mined.
 Soul theme TNT variant, driven away cats, piglins and piglin brutes.
 
 **How to get it**
-- There is no crafting recipe: it is creative-tab only (or `/setblock` / `/give`).
+- Similar recipe as TNT, with sand or red sand replaced with soul sand, and the item at the center is soul torch.
 
 **Behavior**
 - Most of its behaviors are the same as TNT. 

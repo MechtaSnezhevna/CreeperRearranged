@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "redstone",
+  "key": {
+    "#": {
+      "item": "minecraft:soul_sand"
+    },
+    "X": {
+      "item": "minecraft:gunpowder"
+    },
+    "Y": {
+      "item": "minecraft:soul_torch"
+    }
+  },
+  "pattern": [
+    "X#X",
+    "#Y#",
+    "X#X"
+  ],
+  "result": {
+    "id": "creeper_rearranged:soul_corrupted_tnt"
+  }
+}
