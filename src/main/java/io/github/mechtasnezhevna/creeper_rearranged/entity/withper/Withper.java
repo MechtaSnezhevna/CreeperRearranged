@@ -18,9 +18,12 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.Difficulty;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
@@ -593,6 +596,20 @@ public class Withper extends VariantCreeper implements GeoEntity
     @Override
     public void ignite()
     {
+    }
+
+    /**
+     * The boss can't be lit with a creeper igniter (flint and steel or fire charge), so those
+     * interactions do nothing at all - no spark sound, no swing, no durability loss - instead of
+     * the vanilla creeper behaviour of spending 1 durability on a no-op ignite.
+     */
+    @Override
+    protected InteractionResult mobInteract(Player player, InteractionHand hand)
+    {
+        if (player.getItemInHand(hand).is(ItemTags.CREEPER_IGNITERS)) {
+            return InteractionResult.PASS;
+        }
+        return super.mobInteract(player, hand);
     }
 
     @Override
