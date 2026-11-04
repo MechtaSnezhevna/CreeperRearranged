@@ -12,8 +12,10 @@ import software.bernie.geckolib.model.DefaultedEntityGeoModel;
  *
  * <p>The default entity asset paths are resolved automatically:
  * {@code geo/entity/withper.geo.json}, {@code textures/entity/withper.png} and
- * {@code animations/entity/withper.animation.json}. Once the boss enters phase two its two side
- * heads are hidden outright, so the single-headed look holds even during animation crossfades.
+ * {@code animations/entity/withper.animation.json}. The two side heads are hidden outright in
+ * phase two and shown in phase one, decided and applied every frame so the single-headed look
+ * holds even during animation crossfades and the three-headed look holds from the very first
+ * rendered frame of a summon.
  */
 public class WithperGeoModel extends DefaultedEntityGeoModel<Withper>
 {
@@ -30,17 +32,17 @@ public class WithperGeoModel extends DefaultedEntityGeoModel<Withper>
     public void setCustomAnimations(Withper animatable, long instanceId, AnimationState<Withper> state)
     {
         super.setCustomAnimations(animatable, instanceId, state);
-        if (!animatable.isPhaseTwo()) {
-            return;
-        }
-        this.getBone(BONE_HEAD_LEFT).ifPresent(bone -> hideBone(bone));
-        this.getBone(BONE_HEAD_RIGHT).ifPresent(bone -> hideBone(bone));
+        // Set the head visibility explicitly every frame, both ways: phase two hides the side
+        // heads, phase one shows them. Never early-return, so no leftover scale from a previous
+        // frame, animation or entity can leave the boss briefly one-headed at spawn.
+        this.getBone(BONE_HEAD_LEFT).ifPresent(bone -> setBoneScale(bone, animatable.isPhaseTwo() ? 0.0F : 1.0F));
+        this.getBone(BONE_HEAD_RIGHT).ifPresent(bone -> setBoneScale(bone, animatable.isPhaseTwo() ? 0.0F : 1.0F));
     }
 
-    private static void hideBone(GeoBone bone)
+    private static void setBoneScale(GeoBone bone, float scale)
     {
-        bone.setScaleX(0.0F);
-        bone.setScaleY(0.0F);
-        bone.setScaleZ(0.0F);
+        bone.setScaleX(scale);
+        bone.setScaleY(scale);
+        bone.setScaleZ(scale);
     }
 }

@@ -80,6 +80,12 @@ public class Withper extends VariantCreeper implements GeoEntity
     private static final float PHASE_ONE_EXPLOSION_RADIUS = 12.0F;
     /** Phase two blast: 3x a charged creeper's (radius 18). */
     private static final float PHASE_TWO_EXPLOSION_RADIUS = 18.0F;
+    /** HP at which the phase-two transition triggers (half of 300). */
+    private static final float PHASE_TWO_TRIGGER_HEALTH = 150.0F;
+    /** The transition charge before the phase-two blast: a creeper's fuse length (1.5 s). */
+    private static final int TRANSITION_CHARGE_TICKS = 30;
+    /** The transition blast matches a charged creeper's (radius 6). */
+    private static final float TRANSITION_EXPLOSION_RADIUS = 6.0F;
     /** The charge starts once the target is this close (Euclidean, in blocks). */
     private static final double CHARGE_RANGE = 6.0;
     private static final double CHARGE_RANGE_SQ = CHARGE_RANGE * CHARGE_RANGE;
@@ -90,10 +96,16 @@ public class Withper extends VariantCreeper implements GeoEntity
     /** Horizontal pull per tick; phase two is 1.5x as strong. */
     private static final double PHASE_ONE_DRIFT_STRENGTH = 0.3;
     private static final double PHASE_TWO_DRIFT_STRENGTH = 0.45;
-    /** Vertical pull toward the target's height (the wither uses the same 0.3). */
-    private static final double RISE_STRENGTH = 0.3;
-    /** The boss hovers about this many blocks above its target's feet. */
-    private static final double HOVER_HEIGHT_ABOVE_TARGET = 2.0;
+    /** Vertical spring per block of height difference toward the target's height. */
+    private static final double HEIGHT_TRACK_STRENGTH = 0.1;
+    /** Phase two tracks height 1.5x as fast. */
+    private static final double PHASE_TWO_HEIGHT_TRACK_STRENGTH = 0.15;
+    /** Vertical speed cap (blocks/tick); the wither rises at about the same rate. */
+    private static final double MAX_VERTICAL_SPEED = 0.5;
+    /** Phase two can climb and dive 1.5x as fast. */
+    private static final double PHASE_TWO_MAX_VERTICAL_SPEED = 0.75;
+    /** Vertical velocity decay per tick: settles the boss at the target's height without overshoot. */
+    private static final double HEIGHT_TRACK_DAMPING = 0.6;
     /** Horizontal pull switches off once this close (squared distance). */
     private static final double HORIZONTAL_DRIFT_MIN_DISTANCE_SQ = 9.0;
     /** Phase two moves 1.5x as fast in both the air and on the ground. */
@@ -107,16 +119,36 @@ public class Withper extends VariantCreeper implements GeoEntity
         SynchedEntityData.defineId(Withper.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> DATA_PHASE_TWO =
         SynchedEntityData.defineId(Withper.class, EntityDataSerializers.BOOLEAN);
+    /** Countdown of the short un-interruptible charge before the phase-two transition blast. */
+    private static final EntityDataAccessor<Integer> DATA_TRANSITION_TICKS =
+        SynchedEntityData.defineId(Withper.class, EntityDataSerializers.INT);
+    /** True while a charge burns back down after the target left the blast range: the boss keeps
+     *  moving while the charge bar drains, instead of being frozen in the charging state. */
+    private static final EntityDataAccessor<Boolean> DATA_DISSIPATING =
+        SynchedEntityData.defineId(Withper.class, EntityDataSerializers.BOOLEAN);
 
     private static final String TAG_WAKE_TICKS = "WithperWakeTicks";
     private static final String TAG_CHARGE_TICKS = "WithperChargeTicks";
     private static final String TAG_PHASE_TWO = "WithperPhaseTwo";
+    private static final String TAG_TRANSITION_TICKS = "WithperTransitionTicks";
+    private static final String TAG_DISSIPATING = "WithperDissipating";
 
     private final AnimatableInstanceCache animatableCache = GeckoLibUtil.createInstanceCache(this);
     private final ServerBossEvent bossEvent = (ServerBossEvent) new ServerBossEvent(
             this.getDisplayName(), BossEvent.BossBarColor.PURPLE, BossEvent.BossBarOverlay.PROGRESS
         )
         .setDarkenScreen(true);
+    /**
+     * The charge bar: a separate white, title-less, notched bar that only appears while charging.
+     * It is shown for normal charges (building and draining back down) and for the short
+     * phase-transition charge, and is kept stacked directly beneath the health bar (see
+     * {@link #updateBossBar()}).
+     */
+    private final ServerBossEvent chargeEvent = new ServerBossEvent(
+            Component.empty(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10
+        );
+    /** Whether the charge bar is currently shown; gates the one-time bar reordering at charge start. */
+    private boolean chargeBarVisible;
 
     public Withper(EntityType<? extends Withper> entityType, Level level)
     {
@@ -124,6 +156,7 @@ public class Withper extends VariantCreeper implements GeoEntity
         this.moveControl = new FlyingMoveControl(this, 10, true);
         this.setNoGravity(true);
         this.xpReward = 50;
+        this.chargeEvent.setVisible(false);
     }
 
     public static AttributeSupplier.Builder createAttributes()
@@ -166,6 +199,8 @@ public class Withper extends VariantCreeper implements GeoEntity
         builder.define(DATA_WAKE_TICKS, 0);
         builder.define(DATA_CHARGE_TICKS, 0);
         builder.define(DATA_PHASE_TWO, false);
+        builder.define(DATA_TRANSITION_TICKS, 0);
+        builder.define(DATA_DISSIPATING, false);
     }
 
     @Override
@@ -175,6 +210,8 @@ public class Withper extends VariantCreeper implements GeoEntity
         tag.putInt(TAG_WAKE_TICKS, this.getWakeTicks());
         tag.putInt(TAG_CHARGE_TICKS, this.getChargeTicks());
         tag.putBoolean(TAG_PHASE_TWO, this.isPhaseTwo());
+        tag.putInt(TAG_TRANSITION_TICKS, this.getTransitionTicks());
+        tag.putBoolean(TAG_DISSIPATING, this.isDissipating());
     }
 
     @Override
@@ -184,6 +221,8 @@ public class Withper extends VariantCreeper implements GeoEntity
         this.setWakeTicks(tag.getInt(TAG_WAKE_TICKS));
         this.setChargeTicks(tag.getInt(TAG_CHARGE_TICKS));
         this.setPhaseTwo(tag.getBoolean(TAG_PHASE_TWO));
+        this.setTransitionTicks(tag.getInt(TAG_TRANSITION_TICKS));
+        this.setDissipating(tag.getBoolean(TAG_DISSIPATING));
         if (this.isPhaseTwo()) {
             this.applyPhaseTwoSpeed();
         }
@@ -204,6 +243,12 @@ public class Withper extends VariantCreeper implements GeoEntity
     {
         super.startSeenByPlayer(player);
         this.bossEvent.addPlayer(player);
+        this.chargeEvent.addPlayer(player);
+        // A player who joins mid-charge gets both bars in the right order (health, then charge),
+        // so no reordering is needed for them.
+        if (this.isCharging() || this.isDissipating() || this.isTransitioning()) {
+            this.chargeBarVisible = true;
+        }
     }
 
     @Override
@@ -211,25 +256,43 @@ public class Withper extends VariantCreeper implements GeoEntity
     {
         super.stopSeenByPlayer(player);
         this.bossEvent.removePlayer(player);
+        this.chargeEvent.removePlayer(player);
+    }
+
+    /**
+     * While the boss wakes it must not hunt: any target the target goals pick up during the wake
+     * is dropped again, so it neither chases nor charges the moment the wake ends - it re-acquires
+     * a target like a freshly spawned boss.
+     */
+    @Override
+    public void setTarget(@Nullable LivingEntity target)
+    {
+        if (target != null && this.isWaking()) {
+            return;
+        }
+        super.setTarget(target);
     }
 
     /** Called by the summoning structure: 4 seconds of invulnerable wake-up. */
     public void makeInvulnerable()
     {
         this.setWakeTicks(WAKE_TICKS);
+        this.setTarget(null);
         this.setHealth(this.getMaxHealth() / 3.0F);
         this.bossEvent.setProgress(0.0F);
     }
 
     /**
-     * The wither-style chase drift: slowly pulled toward the target's XZ and rising to hover just
-     * above its height. Phase two pulls harder. Nothing drifts while the boss wakes or charges.
+     * The chase drift: slowly pulled toward the target's XZ and toward its altitude through a
+     * damped spring - it approaches the target and settles at its height instead of hovering
+     * above or bobbing up and down, while still following through low openings. Phase two pulls
+     * harder. Nothing drifts while the boss wakes, charges or transitions.
      */
     @Override
     public void aiStep()
     {
         super.aiStep();
-        if (this.level().isClientSide || this.isWaking() || this.isCharging()) {
+        if (this.level().isClientSide || this.isWaking() || this.isCharging() || this.isTransitioning()) {
             return;
         }
         LivingEntity target = this.getTarget();
@@ -238,10 +301,11 @@ public class Withper extends VariantCreeper implements GeoEntity
         }
         Vec3 movement = this.getDeltaMovement().multiply(1.0, 0.6, 1.0);
         double y = movement.y;
-        if (this.getY() < target.getY() + HOVER_HEIGHT_ABOVE_TARGET) {
-            y = Math.max(0.0, y);
-            y += RISE_STRENGTH - y * 0.6F;
-        }
+        double heightStrength = this.isPhaseTwo() ? PHASE_TWO_HEIGHT_TRACK_STRENGTH : HEIGHT_TRACK_STRENGTH;
+        double heightCap = this.isPhaseTwo() ? PHASE_TWO_MAX_VERTICAL_SPEED : MAX_VERTICAL_SPEED;
+        double heightDifference = target.getY() - this.getY();
+        y = (y + heightDifference * heightStrength) * HEIGHT_TRACK_DAMPING;
+        y = Mth.clamp(y, -heightCap, heightCap);
         movement = new Vec3(movement.x, y, movement.z);
         Vec3 toTarget = new Vec3(target.getX() - this.getX(), 0.0, target.getZ() - this.getZ());
         if (toTarget.horizontalDistanceSqr() > HORIZONTAL_DRIFT_MIN_DISTANCE_SQ) {
@@ -258,9 +322,14 @@ public class Withper extends VariantCreeper implements GeoEntity
     /**
      * Drives the boss state machine on the server: the wake countdown and its summoning blast,
      * then the hunt - drift close, charge for 15 (phase one) or 30 (phase two) seconds, detonate.
-     * A charge whose target flees beyond its 6-block range, breaks line of sight or dies burns
-     * down at the same rate it built up, and the boss bar mirrors the wither: wake progress while
-     * waking, health otherwise, and a notched charge progress while charging.
+     * Reaching 150 HP interrupts any charge and starts the phase-two transition: a short
+     * un-interruptible 30-tick charge (a creeper's fuse length) while the boss is locked and
+     * shielded, then a charged-creeper blast, single-headed phase two and its wiskelpers. A charge
+     * whose target flees beyond its 6-block range, breaks line of sight or dies burns down at the
+     * same rate it built up, and while it drains the boss is not frozen - it keeps moving and the
+     * charge bar empties naturally. The bars follow the wither: the main bar shows wake progress
+     * while waking and health otherwise, and the separate white charge bar appears only while
+     * charging.
      */
     @Override
     protected void customServerAiStep()
@@ -282,17 +351,38 @@ public class Withper extends VariantCreeper implements GeoEntity
             return;
         }
 
+        if (this.isTransitioning()) {
+            // Un-interruptible: it ignores its target and its own invulnerability lock absorbs any
+            // hit, so the 30-tick charge always finishes and the transition blast always goes off.
+            int remaining = this.getTransitionTicks() - 1;
+            this.setTransitionTicks(remaining);
+            this.getNavigation().stop();
+            if (remaining <= 0) {
+                this.finishPhaseTransition();
+            }
+            this.updateBossBar();
+            return;
+        }
+
         super.customServerAiStep();
 
+        if (!this.isPhaseTwo() && this.getHealth() <= PHASE_TWO_TRIGGER_HEALTH) {
+            this.startPhaseTransition();
+            this.updateBossBar();
+            return;
+        }
+
         LivingEntity target = this.getTarget();
-        if (target == null || !target.isAlive() || !target.attackable()) {
-            if (this.isCharging()) {
-                this.dissipateCharge();
-            }
-        } else if (this.isCharging()) {
-            if (!this.hasLineOfSight(target) || this.distanceToSqr(target) > CHARGE_RANGE_SQ) {
-                this.dissipateCharge();
-            } else {
+        boolean targetInRange = target != null
+            && target.isAlive()
+            && target.attackable()
+            && this.distanceToSqr(target) <= CHARGE_RANGE_SQ
+            && this.hasLineOfSight(target);
+        if (this.isCharging() || this.isDissipating()) {
+            if (targetInRange) {
+                // The target is back in blast range: resume building the charge from wherever it
+                // drained to.
+                this.setDissipating(false);
                 int remaining = this.getChargeTicks() - 1;
                 this.setChargeTicks(remaining);
                 this.getNavigation().stop();
@@ -300,37 +390,96 @@ public class Withper extends VariantCreeper implements GeoEntity
                     this.detonate();
                     return;
                 }
+            } else {
+                // No reachable target while a charge is up: burn the charge back down. The boss is
+                // in the normal (dissipating) state, so it keeps moving while the charge bar drains.
+                this.dissipateCharge();
             }
-        } else if (this.distanceToSqr(target) <= CHARGE_RANGE_SQ && this.hasLineOfSight(target)) {
+        } else if (targetInRange) {
             this.startCharging();
         }
 
         this.updateBossBar();
     }
 
-    /** The boss bar shows charge progress (notched overlay) while charging, health otherwise. */
+    /**
+     * The main purple bar always shows health; the white charge bar appears only while charging
+     * (building, draining back down or in the phase transition). When the charge bar is about to
+     * show, the health bar is removed and re-added first: the client orders boss bars by ADD
+     * arrival, so re-adding the health bar moves it to the end of the list and the charge bar
+     * lands directly beneath it instead of at the bottom of every boss bar the player has.
+     */
     private void updateBossBar()
     {
-        if (this.isCharging()) {
-            int maxTicks = this.isPhaseTwo() ? PHASE_TWO_CHARGE_TICKS : PHASE_ONE_CHARGE_TICKS;
-            this.bossEvent.setOverlay(BossEvent.BossBarOverlay.NOTCHED_10);
-            this.bossEvent.setProgress(1.0F - (float) this.getChargeTicks() / (float) maxTicks);
-        } else {
-            this.bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
-            this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+        this.bossEvent.setOverlay(BossEvent.BossBarOverlay.PROGRESS);
+        this.bossEvent.setProgress(this.getHealth() / this.getMaxHealth());
+        boolean charging = this.isCharging() || this.isDissipating() || this.isTransitioning();
+        if (charging && !this.chargeBarVisible) {
+            this.bossEvent.setVisible(false);
+            this.bossEvent.setVisible(true);
         }
+        this.chargeBarVisible = charging;
+        this.chargeEvent.setVisible(charging);
+        if (charging) {
+            int maxTicks;
+            int ticks;
+            if (this.isTransitioning()) {
+                maxTicks = TRANSITION_CHARGE_TICKS;
+                ticks = this.getTransitionTicks();
+            } else {
+                maxTicks = this.isPhaseTwo() ? PHASE_TWO_CHARGE_TICKS : PHASE_ONE_CHARGE_TICKS;
+                ticks = this.getChargeTicks();
+            }
+            this.chargeEvent.setProgress(1.0F - (float) ticks / (float) maxTicks);
+        }
+    }
+
+    /**
+     * Kicks off the phase-two transition the moment the boss reaches 150 HP: the ongoing charge
+     * (if any) is cleared, health locks at 150 (hits are capped on the way in and fully absorbed
+     * while transitioning, so the bar only ever falls smoothly to 150) and the short
+     * un-interruptible transition charge starts.
+     */
+    private void startPhaseTransition()
+    {
+        this.setHealth(PHASE_TWO_TRIGGER_HEALTH);
+        this.setChargeTicks(0);
+        this.setTransitionTicks(TRANSITION_CHARGE_TICKS);
+        this.setDissipating(false);
+    }
+
+    /** The transition charge ran out: a charged-creeper blast, then unlock, single head and wiskelpers. */
+    private void finishPhaseTransition()
+    {
+        this.level().explode(this, this.getX(), this.getY(), this.getZ(), TRANSITION_EXPLOSION_RADIUS, Level.ExplosionInteraction.MOB);
+        this.setTransitionTicks(0);
+        this.enterPhaseTwo();
     }
 
     private void startCharging()
     {
+        this.setDissipating(false);
         this.setChargeTicks(this.isPhaseTwo() ? PHASE_TWO_CHARGE_TICKS : PHASE_ONE_CHARGE_TICKS);
     }
 
-    /** A charge whose target fled, hid or died burns down at the same rate it built up. */
+    /**
+     * A charge whose target fled, hid or died burns down at the same rate it built up, in the
+     * dissipating state: the boss is not frozen - it moves and hunts normally while the charge
+     * bar drains. Reaching the top of the charge means it is fully gone: the boss stops draining
+     * (charge ticks snap back to 0) and resumes hunting, so an interrupted charge never freezes
+     * its AI.
+     */
     private void dissipateCharge()
     {
         int maxTicks = this.isPhaseTwo() ? PHASE_TWO_CHARGE_TICKS : PHASE_ONE_CHARGE_TICKS;
-        this.setChargeTicks(Math.min(this.getChargeTicks() + 1, maxTicks));
+        int next = this.getChargeTicks() + 1;
+        if (next >= maxTicks) {
+            this.setChargeTicks(0);
+            this.setDissipating(false);
+        } else {
+            this.setChargeTicks(next);
+            this.setDissipating(true);
+        }
     }
 
     /** The charge ran out: blow up, then either enter phase two or - after the second blast - die. */
@@ -340,9 +489,14 @@ public class Withper extends VariantCreeper implements GeoEntity
         float radius = phaseTwo ? PHASE_TWO_EXPLOSION_RADIUS : PHASE_ONE_EXPLOSION_RADIUS;
         this.level().explode(this, this.getX(), this.getY(), this.getZ(), radius, Level.ExplosionInteraction.MOB);
         this.setChargeTicks(0);
+        this.setDissipating(false);
         if (phaseTwo) {
             this.scriptedDeath();
         } else {
+            // The self-detonation beat the player to the punch (health still above 150): the full
+            // phase-one blast goes off, then the boss drops to the 150-HP line and turns
+            // single-headed with its wiskelpers.
+            this.setHealth(PHASE_TWO_TRIGGER_HEALTH);
             this.enterPhaseTwo();
         }
     }
@@ -395,18 +549,15 @@ public class Withper extends VariantCreeper implements GeoEntity
     }
 
     /**
-     * The second blast is the boss's last act: it drops its loot (2 nether stars and 16 gunpowder
-     * through the loot table), releases the boss bar and discards, exactly like a creeper that
-     * blew itself up.
+     * The second blast is the boss's last act: it releases its boss bars and discards, exactly
+     * like a creeper that blew itself up. It drops nothing - loot only comes from actually killing
+     * it, so letting it self-detonate is never a reward.
      */
     private void scriptedDeath()
     {
-        if (this.level() instanceof ServerLevel serverLevel) {
-            this.dead = true;
-            this.dropAllDeathLoot(serverLevel, this.damageSources().generic());
-            this.dropExperience(this.getKillCredit());
-        }
+        this.dead = true;
         this.bossEvent.removeAllPlayers();
+        this.chargeEvent.removeAllPlayers();
         this.discard();
     }
 
@@ -418,14 +569,22 @@ public class Withper extends VariantCreeper implements GeoEntity
 
     /**
      * Swelling grows 0 to 1 across the whole charge, driving the creeper-style inflation and the
-     * white fuse flash on the renderer.
+     * white fuse flash on the renderer - and shrinks back to 0 while the charge dissipates, so the
+     * boss deflates naturally as the charge bar drains.
      */
     @Override
     public float getSwelling(float partialTick)
     {
-        if (this.isCharging()) {
+        if (this.isCharging() || this.isDissipating()) {
             int maxTicks = this.isPhaseTwo() ? PHASE_TWO_CHARGE_TICKS : PHASE_ONE_CHARGE_TICKS;
             return Mth.clamp((float) (maxTicks - this.getChargeTicks() + partialTick) / (float) maxTicks, 0.0F, 1.0F);
+        }
+        if (this.isTransitioning()) {
+            return Mth.clamp(
+                (float) (TRANSITION_CHARGE_TICKS - this.getTransitionTicks() + partialTick) / (float) TRANSITION_CHARGE_TICKS,
+                0.0F,
+                1.0F
+            );
         }
         return 0.0F;
     }
@@ -445,7 +604,15 @@ public class Withper extends VariantCreeper implements GeoEntity
         super.setSwellDir(direction);
     }
 
-    /** Mirrors the wither: immune to its damage tag, to the wither's own attacks and while waking. */
+    /**
+     * Mirrors the wither: immune to its damage tag and the wither's own attacks, while waking, and
+     * while the phase transition locks it (the wither-style shield makes it deflect projectiles
+     * too). In phase one the boss can neither die to nor be dropped below the 150-HP line by a
+     * normal hit: a killing blow is capped so it always survives, and whatever remains below the
+     * line is snapped back to exactly 150 in the same tick. The intermediate value is never sent
+     * to the client, so the health bar only ever falls smoothly to 150 and never jumps back up -
+     * and overkill can't skip the transition or its blast.
+     */
     @Override
     public boolean hurt(DamageSource source, float amount)
     {
@@ -453,8 +620,17 @@ public class Withper extends VariantCreeper implements GeoEntity
             return false;
         } else if (source.is(DamageTypeTags.WITHER_IMMUNE_TO) || source.getEntity() instanceof WitherBoss) {
             return false;
-        } else if (this.isWaking() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+        } else if ((this.isWaking() || this.isTransitioning()) && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             return false;
+        } else if (!this.isPhaseTwo() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            if (amount >= this.getHealth()) {
+                amount = Math.max(this.getHealth() - 1.0F, 0.0F);
+            }
+            boolean hurt = super.hurt(source, amount);
+            if (hurt && !this.isDeadOrDying() && this.getHealth() < PHASE_TWO_TRIGGER_HEALTH) {
+                this.setHealth(PHASE_TWO_TRIGGER_HEALTH);
+            }
+            return hurt;
         }
         return super.hurt(source, amount);
     }
@@ -521,9 +697,32 @@ public class Withper extends VariantCreeper implements GeoEntity
         return this.getWakeTicks() > 0;
     }
 
+    /** Wake progress 0 to 1, used by the renderer to fade in the summoning shield. */
+    public float getWakeProgress()
+    {
+        return 1.0F - (float) this.getWakeTicks() / (float) WAKE_TICKS;
+    }
+
+    /**
+     * Whether the boss is frozen in the building charge. A charge that is burning back down after
+     * the target left the blast range is {@link #isDissipating()} instead: the boss keeps moving
+     * while the charge bar drains.
+     */
     public boolean isCharging()
     {
-        return this.getChargeTicks() > 0;
+        return this.getChargeTicks() > 0 && !this.isDissipating();
+    }
+
+    /** Whether a charge is burning back down after the target left the blast range. */
+    public boolean isDissipating()
+    {
+        return this.entityData.get(DATA_DISSIPATING);
+    }
+
+    /** Whether the short un-interruptible charge before the phase-two blast is running. */
+    public boolean isTransitioning()
+    {
+        return this.getTransitionTicks() > 0;
     }
 
     public boolean isPhaseTwo()
@@ -541,6 +740,11 @@ public class Withper extends VariantCreeper implements GeoEntity
         return this.entityData.get(DATA_CHARGE_TICKS);
     }
 
+    public int getTransitionTicks()
+    {
+        return this.entityData.get(DATA_TRANSITION_TICKS);
+    }
+
     private void setWakeTicks(int ticks)
     {
         this.entityData.set(DATA_WAKE_TICKS, ticks);
@@ -554,6 +758,16 @@ public class Withper extends VariantCreeper implements GeoEntity
     private void setPhaseTwo(boolean phaseTwo)
     {
         this.entityData.set(DATA_PHASE_TWO, phaseTwo);
+    }
+
+    private void setTransitionTicks(int ticks)
+    {
+        this.entityData.set(DATA_TRANSITION_TICKS, Math.max(ticks, 0));
+    }
+
+    private void setDissipating(boolean dissipating)
+    {
+        this.entityData.set(DATA_DISSIPATING, dissipating);
     }
 
     @Override
@@ -580,7 +794,7 @@ public class Withper extends VariantCreeper implements GeoEntity
             state.getController().setAnimation(RawAnimation.begin().thenPlay(ANIMATION_WAKE));
             return PlayState.CONTINUE;
         }
-        if (this.isCharging()) {
+        if (this.isCharging() || this.isTransitioning()) {
             state.getController().setAnimation(
                 RawAnimation.begin().thenLoop(this.isPhaseTwo() ? ANIMATION_PHASE_TWO_EXPLOSION : ANIMATION_EXPLOSION)
             );
@@ -609,7 +823,7 @@ public class Withper extends VariantCreeper implements GeoEntity
         @Override
         public boolean canUse()
         {
-            return Withper.this.isWaking() || Withper.this.isCharging();
+            return Withper.this.isWaking() || Withper.this.isCharging() || Withper.this.isTransitioning();
         }
     }
 }

@@ -221,25 +221,22 @@ A nether-fortress creeper variant, carrying a soul corrupted TNT. It replaces 2%
 
 ### Withper
 
-A wither-flavoured creeper boss with 300 HP, a purple boss bar and a penchant for the oldest weapon there is: the self-destruct. It is summoned like the wither, except that the soul sand directly under the middle skull is a block of creeper soul. It flies after the nearest player, never fires wither skulls, and wins or loses by blowing itself up.
+A wither-like creeper and a boss mob.
 
 **Spawning and creation**
 - Place three wither skeleton skulls on a T of soul sand or soul soil whose centre block (directly under the middle skull) is a soul corrupted TNT; placing the last skull summons it.
 - Spawn with `/summon creeper_rearranged:withper ~ ~ ~` or its spawn egg.
 
 **Behavior**
-- Flies and always hunts the nearest player first; it never shoots wither skulls.
 - Like the wither, it wakes at a third of its health and heals back to full during its 4-second invulnerable wake-up.
-- Within 6 blocks of its target it stops and charges for 15 seconds (swelling and flashing white like a creeper, with a notched charge bar on its boss bar), then detonates with a blast twice as wide as a charged creeper's (radius 12).
-- Fleeing beyond 6 blocks, breaking line of sight or losing the target does not cancel the charge outright: it burns down at the same speed it built up, and only then does the boss start chasing again.
-- It always prefers the nearest player as its target; when no player is in reach, other creatures that attack it earn its hatred and are hunted down instead.
-- The first blast knocks it into phase two: only the middle head remains, three wiskelpers are summoned to fight alongside it, and it moves 1.5x as fast.
-- In phase two it charges 30 seconds before a blast three times as wide as a charged creeper's (radius 18) - and that second blast kills it.
-- It shares the wither's defences: no status effects, immune to wither damage and the wither's attacks, no riding or portals, and it never despawns outside peaceful mode.
-- Summoning it triggers the vanilla summoned-entity trigger, like summoning the wither does.
+- Once near its target it stops and charges for 15 seconds, then detonates: the blast is twice as powerful as a charged creeper's. While charging, an independent white notched bar appears beneath the boss's health bar.
+- When the target flees beyond 6 blocks, hides behind a wall out of line of sight, or is lost entirely, the charge drains back down at the same speed it built up.
+- When its health is dropped to 150 it changes phase: the current charge is interrupted, health locks at 150, it charges 1.5 seconds and detonates a charged-creeper-level blast; after the blast it unlocks its health, turns single-headed, summons three wiskelpers, and moves 1.5x as fast.
+- If its own 15-second charge detonates before it is dropped to 150, it detonates the phase-one blast, then its health drops to 150, it turns single-headed and summons three wiskelpers.
+- In phase two it charges 30 seconds, then detonates a blast three times as powerful as a charged creeper's - and that blast kills it.
 
 **Drops**
-- Always: 2 nether stars and 16 gunpowder - also when it dies to its own second blast.
+- Only when it is killed: always 2 nether stars and 16 gunpowder.
 
 ## New blocks
 

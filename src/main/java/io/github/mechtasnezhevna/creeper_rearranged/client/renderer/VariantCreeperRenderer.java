@@ -101,8 +101,13 @@ public abstract class VariantCreeperRenderer<T extends VariantCreeper & GeoAnima
         }
     }
 
-    /** Vanilla {@code CreeperRenderer#getWhiteOverlayProgress} flicker curve. */
-    private static float whiteFlashProgress(float swelling)
+    /**
+     * Vanilla {@code CreeperRenderer#getWhiteOverlayProgress} flicker curve: the flash alternates
+     * every 0.1 of swelling, matching a creeper's short 1.5-second fuse. Variants whose swelling
+     * lasts much longer (like the withper's 15-second charge) override this with a smooth ramp so
+     * the whiteness matches their whole charge duration.
+     */
+    protected float whiteFlashProgress(float swelling)
     {
         return (int) (swelling * 10.0F) % 2 == 0 ? 0.0F : Mth.clamp(swelling, 0.5F, 1.0F);
     }
