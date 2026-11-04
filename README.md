@@ -215,6 +215,7 @@ A nether-fortress creeper variant, carrying a soul corrupted TNT. It replaces 2%
 **Behavior**
 - Every 12-18 seconds it absorbs soul power for 3 seconds: while absorbing, every creature within 8 blocks - except wither skeletons, other wiskelpers, the wither and the withper boss - is struck by a 5-second wither effect.
 - Its blast is 0.8x a vanilla creeper's.
+- It counts as undead.
 
 **Drops**
 - Always: 0-2 gunpowder and 0-2 coal (both more with Looting), plus 1 soul corrupted TNT.
@@ -234,6 +235,7 @@ A wither-like creeper and a boss mob.
 - When its health is dropped to 150 it changes phase: the current charge is interrupted, health locks at 150, it charges 1.5 seconds and detonates a charged-creeper-level blast; after the blast it unlocks its health, turns single-headed, summons three wiskelpers, and moves 1.5x as fast.
 - If its own 15-second charge detonates before it is dropped to 150, it detonates the phase-one blast, then its health drops to 150, it turns single-headed and summons three wiskelpers.
 - In phase two it charges 30 seconds, then detonates a blast three times as powerful as a charged creeper's - and that blast kills it.
+- It is undead.
 
 **Drops**
 - Only when it is killed: always 2 nether stars and 16 gunpowder.
