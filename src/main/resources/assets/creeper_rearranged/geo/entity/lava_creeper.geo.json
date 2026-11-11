@@ -1,0 +1,130 @@
+{
+	"format_version": "1.12.0",
+	"minecraft:geometry": [
+		{
+			"description": {
+				"identifier": "geometry.lava_creeper",
+				"texture_width": 128,
+				"texture_height": 64,
+				"visible_bounds_width": 3,
+				"visible_bounds_height": 4,
+				"visible_bounds_offset": [0, 1, 0]
+			},
+			"bones": [
+				{
+					"name": "creeper",
+					"pivot": [0, 0, 0]
+				},
+				{
+					"name": "waist",
+					"parent": "creeper",
+					"pivot": [0, 1, 0]
+				},
+				{
+					"name": "body",
+					"parent": "waist",
+					"pivot": [0, 20, 0],
+					"cubes": [
+						{"origin": [-4, 10, -4], "size": [8, 10, 8], "inflate": 0.25, "uv": [0, 22]}
+					]
+				},
+				{
+					"name": "head",
+					"parent": "body",
+					"pivot": [0, 20, 0],
+					"cubes": [
+						{"origin": [-6, 20, -6], "size": [12, 10, 12], "uv": [0, 0]},
+						{"origin": [-5, 20, -4], "size": [10, 10, 0], "uv": [48, 22]},
+						{"origin": [-5, 20, 4], "size": [10, 10, 0], "uv": [48, 22]},
+						{"origin": [4, 20, -5], "size": [0, 10, 10], "uv": [48, 12]},
+						{"origin": [-4, 20, -5], "size": [0, 10, 10], "uv": [48, 12]}
+					]
+				},
+				{
+					"name": "face",
+					"parent": "head",
+					"pivot": [0, 25, -6.05]
+				},
+				{
+					"name": "idle",
+					"parent": "face",
+					"pivot": [0, 25, -6.05],
+					"cubes": [
+						{"origin": [-6, 20, -6.025], "size": [12, 10, 0], "uv": [32, 44]}
+					]
+				},
+				{
+					"name": "charging",
+					"parent": "face",
+					"pivot": [0, 25, -5.05],
+					"cubes": [
+						{"origin": [-6, 20, -5.025], "size": [12, 10, 0], "uv": [32, 34]}
+					]
+				},
+				{
+					"name": "shooting",
+					"parent": "face",
+					"pivot": [0, 25, -5.05],
+					"cubes": [
+						{"origin": [-6, 20, -5.025], "size": [12, 10, 0], "uv": [32, 54]}
+					]
+				},
+				{
+					"name": "magma",
+					"parent": "head",
+					"pivot": [0, 28, 0],
+					"cubes": [
+						{"origin": [-5, 28, -5], "size": [10, 0, 10], "uv": [38, 12]}
+					]
+				},
+				{
+					"name": "lava_rod",
+					"parent": "body",
+					"pivot": [0, 15, 0],
+					"cubes": [
+						{"origin": [-4, -1, -4], "size": [8, 16, 8], "uv": [0, 40]}
+					]
+				},
+				{
+					"name": "lava",
+					"parent": "creeper",
+					"pivot": [0, -1, 0],
+					"cubes": [
+						{"origin": [-8, -9, -8], "size": [16, 10, 16], "inflate": 0.25, "uv": [64, 38]},
+						{"origin": [-8, -2, -8], "size": [16, 1, 16], "inflate": 0.125, "uv": [64, 38]}
+					]
+				},
+				{
+					"name": "cube",
+					"pivot": [0, 3, 0],
+					"cubes": [
+						{"origin": [-3, 0, -3], "size": [6, 6, 6], "uv": [72, 2]}
+					]
+				},
+				{
+					"name": "shell",
+					"parent": "cube",
+					"pivot": [0, 3, 0],
+					"cubes": [
+						{"origin": [-3, 0, -3], "size": [6, 6, 6], "inflate": 0.25, "uv": [72, 14]}
+					]
+				},
+				{
+					"name": "ball",
+					"pivot": [0, 4, 0],
+					"cubes": [
+						{"origin": [-4, 0, -4], "size": [8, 8, 8], "uv": [96, 0]}
+					]
+				},
+				{
+					"name": "light",
+					"parent": "ball",
+					"pivot": [0, 4, 0],
+					"cubes": [
+						{"origin": [-4, 0, -4], "size": [8, 8, 8], "inflate": 0.25, "uv": [96, 16]}
+					]
+				}
+			]
+		}
+	]
+}
