@@ -23,6 +23,7 @@ public final class ModCreativeTabs
                 output.accept(ModItems.UNDERWATER_TNT.get());
                 output.accept(ModItems.SOUL_CORRUPTED_TNT.get());
                 output.accept(ModItems.SLEEPING_CREEPOT.get());
+                output.accept(ModItems.HUSHED_BELL.get());
                 output.accept(ModItems.HONEEPER_SPAWN_EGG.get());
                 output.accept(ModItems.ENDPER_SPAWN_EGG.get());
                 output.accept(ModItems.CRIMPER_SPAWN_EGG.get());
@@ -34,6 +35,7 @@ public final class ModCreativeTabs
                 output.accept(ModItems.CREEPOT_SPAWN_EGG.get());
                 output.accept(ModItems.WISKELPER_SPAWN_EGG.get());
                 output.accept(ModItems.WITHPER_SPAWN_EGG.get());
+                output.accept(ModItems.SCULKPER_SPAWN_EGG.get());
         })
             .build()
     );

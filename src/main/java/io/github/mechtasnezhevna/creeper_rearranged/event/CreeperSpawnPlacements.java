@@ -46,5 +46,14 @@ public class CreeperSpawnPlacements {
                 Creepop::checkCreepopSpawnRules,
                 RegisterSpawnPlacementsEvent.Operation.REPLACE
         );
+        // Deep dark spawns: like the other ground monsters, any light level is fine (the deep dark
+        // is always dark anyway); the biome modifier keeps the spawn rate very low.
+        event.register(
+                ModEntities.SCULKPER.get(),
+                SpawnPlacementTypes.ON_GROUND,
+                Heightmap.Types.MOTION_BLOCKING_NO_LEAVES,
+                Monster::checkAnyLightMonsterSpawnRules,
+                RegisterSpawnPlacementsEvent.Operation.REPLACE
+        );
     }
 }

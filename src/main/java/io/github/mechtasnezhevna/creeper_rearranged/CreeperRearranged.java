@@ -5,6 +5,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.creepaler.Creepaler;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.creepot.Creepot;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.endper.Endper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.sculkper.Sculkper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.withper.Withper;
 import io.github.mechtasnezhevna.creeper_rearranged.event.*;
 import io.github.mechtasnezhevna.creeper_rearranged.registry.ModBlocks;
@@ -38,6 +39,9 @@ public class CreeperRearranged
         modEventBus.addListener(CreeperSpawnPlacements::onRegisterSpawnPlacements);
 
         NeoForge.EVENT_BUS.addListener(CreeperSpawnReplacement::onFinalizeSpawn);
+        NeoForge.EVENT_BUS.addListener(SculkperSpawning::onFinalizeSpawn);
+        NeoForge.EVENT_BUS.addListener(HushedBellVibration::onVanillaGameEvent);
+        NeoForge.EVENT_BUS.addListener(HushedBellLoot::onLootTableLoad);
         NeoForge.EVENT_BUS.addListener(GoalInjector::onEntityJoinLevel);
         NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onEntityInteract);
         NeoForge.EVENT_BUS.addListener(HoneeperInteractions::onLivingDamage);
@@ -74,5 +78,6 @@ public class CreeperRearranged
         event.put(ModEntities.CREEPOT.get(), Creepot.createAttributes().build());
         event.put(ModEntities.WISKELPER.get(), Creeper.createAttributes().build());
         event.put(ModEntities.WITHPER.get(), Withper.createAttributes().build());
+        event.put(ModEntities.SCULKPER.get(), Sculkper.createAttributes().build());
     }
 }

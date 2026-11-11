@@ -1,0 +1,10 @@
+{
+  "type": "neoforge:add_spawns",
+  "biomes": "minecraft:deep_dark",
+  "spawners": {
+    "type": "creeper_rearranged:sculkper",
+    "weight": 3,
+    "minCount": 1,
+    "maxCount": 1
+  }
+}

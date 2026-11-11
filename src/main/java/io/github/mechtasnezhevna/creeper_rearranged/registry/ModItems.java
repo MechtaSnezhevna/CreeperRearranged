@@ -3,6 +3,7 @@ package io.github.mechtasnezhevna.creeper_rearranged.registry;
 import io.github.mechtasnezhevna.creeper_rearranged.CreeperRearranged;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.SoulCorruptedPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
+import io.github.mechtasnezhevna.creeper_rearranged.item.HushedBellItem;
 import io.github.mechtasnezhevna.creeper_rearranged.item.SleepingCreepotItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.dispenser.BlockSource;
@@ -143,6 +144,26 @@ public final class ModItems
         "withper_spawn_egg",
         () -> new DeferredSpawnEggItem(
             ModEntities.WITHPER::get,
+            0xFFFFFF,
+            0xFFFFFF,
+            new Item.Properties()
+        )
+    );
+
+    /**
+     * The hushed bell (敛声铃): one durability-256 item that swallows the vibration signals of the
+     * creature holding it. Wardens and sculkpers each have a 5% chance to drop it, and ancient city
+     * chests occasionally contain one.
+     */
+    public static final DeferredHolder<Item, Item> HUSHED_BELL = ITEMS.register(
+        "hushed_bell",
+        () -> new HushedBellItem(new Item.Properties().durability(256).stacksTo(1))
+    );
+
+    public static final DeferredHolder<Item, Item> SCULKPER_SPAWN_EGG = ITEMS.register(
+        "sculkper_spawn_egg",
+        () -> new DeferredSpawnEggItem(
+            ModEntities.SCULKPER::get,
             0xFFFFFF,
             0xFFFFFF,
             new Item.Properties()

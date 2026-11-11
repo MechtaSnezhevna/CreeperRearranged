@@ -11,6 +11,7 @@ import io.github.mechtasnezhevna.creeper_rearranged.entity.honeeper.Honeeper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.SoulCorruptedPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.item.UnderwaterPrimedTnt;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.phanper.Phanper;
+import io.github.mechtasnezhevna.creeper_rearranged.entity.sculkper.Sculkper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.warper.Warper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.wiskelper.Wiskelper;
 import io.github.mechtasnezhevna.creeper_rearranged.entity.withper.Withper;
@@ -155,6 +156,19 @@ public final class ModEntities
             .sized(0.9F, 2.2F)
             .clientTrackingRange(10)
             .build("withper")
+    );
+
+    /**
+     * Sculkper (苦匿怕) - a sculk creeper of the deep dark. Same hitbox, eye height and tracking
+     * range as the vanilla creeper; its spawn placement and biome modifier handle the rare natural
+     * deep-dark spawns.
+     */
+    public static final DeferredHolder<EntityType<?>, EntityType<Sculkper>> SCULKPER = ENTITY_TYPES.register(
+        "sculkper",
+        () -> EntityType.Builder.<Sculkper>of(Sculkper::new, MobCategory.MONSTER)
+            .sized(1F, 4.0F)
+            .clientTrackingRange(8)
+            .build("sculkper")
     );
 
     /**

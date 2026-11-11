@@ -6,7 +6,8 @@
   "refmap": "CreeperRearranged.refmap.json",
   "mixins": [
     "CreeperExplosionMixin",
-    "CreepotStructureMixin"
+    "CreepotStructureMixin",
+    "WardenTargetingMixin"
   ],
   "client": [
   ],

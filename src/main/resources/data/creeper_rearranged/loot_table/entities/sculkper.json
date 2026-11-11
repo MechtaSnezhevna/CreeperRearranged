@@ -1,0 +1,80 @@
+{
+  "type": "minecraft:entity",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "functions": [
+            {
+              "add": false,
+              "count": {
+                "type": "minecraft:uniform",
+                "max": 3.0,
+                "min": 0.0
+              },
+              "function": "minecraft:set_count"
+            }
+          ],
+          "name": "minecraft:gunpowder"
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "chance": 0.5,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sculk",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sculk_vein",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sculk_catalyst",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sculk_sensor",
+          "weight": 1
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:sculk_shrieker",
+          "weight": 1
+        }
+      ],
+      "rolls": 1.0
+    },
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "chance": 0.05,
+          "condition": "minecraft:random_chance"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "creeper_rearranged:hushed_bell"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "creeper_rearranged:entities/sculkper"
+}

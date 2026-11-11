@@ -240,6 +240,44 @@ A wither-like creeper and a boss mob.
 **Drops**
 - Only when it is killed: always 2 nether stars and 16 gunpowder.
 
+### Sculkper
+
+A deep-dark creeper variant that grew out of sculk - a listener rather than a hunter.
+
+**Spawning**
+- Spawns naturally in the deep dark at a very low rate, at most one per spawn.
+- If a sculk shrieker stands within 5 blocks horizontally (and no more than 1 block higher or lower) of where it spawns, one extra sculkper appears beside it.
+- Spawn with `/summon creeper_rearranged:sculkper ~ ~ ~` or its spawn egg.
+
+**Behavior**
+- It has 50 HP (25 hearts) and otherwise behaves like a vanilla creeper - except that it never hunts players and never swells on its own; only being attacked makes it lock onto its attacker.
+- No action of its own - walking, being hurt, priming its fuse, exploding - produces a vibration, and wardens never treat it as a target.
+- Like a warden it listens for vibrations within 16 blocks. When the vibration came from a living creature it stares at that creature for 15 seconds.
+- Every third vibration signal it shrieks for 5 seconds, then summons a warden within 24 blocks (two wardens with a 0.2% chance).
+- When attacked it chases its attacker and, once within 3 blocks, charges for 5 seconds before detonating: power 4, like a block of TNT, but the blast never destroys blocks. If the target escapes beyond 7 blocks or out of sight, the chase fuse dies out again.
+- Flint and steel or a fire charge can also prime it; an ignited fuse always burns to the end.
+- Left alone for 5 minutes, it has a 55% chance to sit down and rest for 1 minute, gaining 15 seconds of Regeneration I; being hurt or shrieking ends the rest.
+
+**Drops**
+- Always: 0-3 gunpowder.
+- 50% chance for one random sculk block: sculk, sculk vein, sculk catalyst, sculk sensor or sculk shrieker.
+- 5% chance for a hushed bell.
+
+## New items
+
+### Hushed Bell
+
+A small instrument that swallows vibration signals.
+
+**How to get it**
+- Wardens and sculkpers each have a 5% chance to drop one.
+- Each chest of an ancient city - the standard chests and the ice-box variant - has a 0.78% chance to contain one.
+- It has 256 points of durability, stacks to 1, and can be enchanted with Unbreaking, Mending and the Curse of Vanishing.
+
+**Behavior**
+- While held in either hand (main or off hand), every action of yours that would emit a vibration is silenced: neither wardens nor sculk sensors perceive it.
+- Each absorbed vibration costs 1 durability; when the bell's durability runs out it breaks and disappears.
+
 ## New blocks
 
 ### Warped Shroomlight
